@@ -1,0 +1,11 @@
+TODO:
+
+- implementazione dei vari 'tool' (kill, suspend, resume, terminate)
+- suddivisione dei task tra main process e il thread creato:
+    + main process -> GUI
+    + thread -> scorrimento e aggiornamento delle informazioni nella struttura dati
+    + shared memory (?)
+    + refresh rate da decidere (500 < x <= 1000, in ms)
+    + struttura dati contente i dati dei vari processi -> hash table in cui il pid del processo è l'indice (unique)
+    + cpu_usage / memory_usage
+    
