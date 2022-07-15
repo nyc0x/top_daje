@@ -4,7 +4,7 @@ typedef struct HashItems {
 } HashItems;
 
 typedef struct HashTable {
-    HashItems** ptr;
-    int size;
-    int used;
+    HashItems** ptr;    //pointer to pointer to hash items
+    int size;           //hash size
+    int used;           //keep track of used items
 } HashTable;
