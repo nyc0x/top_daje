@@ -4,8 +4,22 @@ TODO:
 - suddivisione dei task tra main process e il thread creato:
     + main process -> GUI
     + thread -> scorrimento e aggiornamento delle informazioni nella struttura dati
-    + shared memory (?)
+    + Implementazione struttura Mappa condivisa tra i vari threads
     + refresh rate da decidere (500 < x <= 1000, in ms)
-    + struttura dati contente i dati dei vari processi -> hash table in cui il pid del processo è l'indice (unique)
     + cpu_usage / memory_usage
+    
+
+
+- TODO nello specifico: (Ultimata la fase di progettazione)
+    + Study and implement TUI (Terminal User interface) using ncurses Library (already installed) 
+        + Attach the TUI implementation to the runner process.
+    + Retrieve /proc data:
+        + pre-process the relevant stats
+        + Create API for the update thread that runs periodically.
+    + Bind the data from /proc to TUI
+    + Implement effective event listener for the keystroke as a thread routine for every process running
+    + Bind the thread event listener to the Ultimata
+    + [OPT] Add better error handling/logging
+    + [OPT] Structure application status codes and trigger them accordingly in the execution flow.
+
     
