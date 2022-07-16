@@ -1,10 +1,15 @@
-typedef struct HashItems {
+typedef struct HashItem {
     int key;        //PID
     char* buf[];    //array string which contains PID data
-} HashItems;
+} HashItem;
 
 typedef struct HashTable {
-    HashItems** ptr;    //pointer to pointer to hash items
+    HashItem** ptr;    //pointer to pointer to hash items
     int size;           //hash size
     int used;           //keep track of used items
 } HashTable;
+
+//creates a pointer to the main structure
+HashTable* createTable(int size);
+
+HashItem
