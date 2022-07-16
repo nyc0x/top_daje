@@ -11,14 +11,14 @@ TODO:
 
 
 - TODO nello specifico: (Ultimata la fase di progettazione)
-    + Study and implement TUI (Terminal User interface) using ncurses Library (already installed) 
+    + Study and implement TUI (Terminal User Interface) using ncurses Library (already installed) 
         + Attach the TUI implementation to the runner process.
     + Retrieve /proc data:
         + pre-process the relevant stats
         + Create API for the update thread that runs periodically.
     + Bind the data from /proc to TUI
     + Implement effective event listener for the keystroke as a thread routine for every process running
-    + Bind the thread event listener to the Ultimata
+    + Bind the thread event listener to the UI
     + [OPT] Add better error handling/logging
     + [OPT] Structure application status codes and trigger them accordingly in the execution flow.
 

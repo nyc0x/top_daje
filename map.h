@@ -6,7 +6,7 @@ typedef struct MapItem {
 } MapItem;
 
 typedef struct Map {
-    MapItem** ptr;      //pointer to pointer to map items
+    MapItem** items;      //pointer to pointer to map items
     int size;           //map size
     int used;           //keep track of used items
 } Map;
@@ -15,7 +15,7 @@ typedef struct Map {
 Map* createMap(int size);
 
 //creates an item of the map
-MapItem* createItem(int key, char** info);
+MapItem* createItem(Map* map, int key, char** info);
 
 //frees an item
 void freeItem(MapItem* item);
