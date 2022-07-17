@@ -1,10 +1,11 @@
 #include "map.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 Map* createMap(int size) {
     Map* m = (Map*)malloc(sizeof(Map));
-    m->items = (MapItem**)malloc(sizeof(MapItem*));
+    m->items = (MapItem**)malloc(sizeof(MapItem*)*size);
     m->size = size;
     m->used ^= m->used;
     for (int i = 0; i < m->size; i++)
@@ -12,16 +13,15 @@ Map* createMap(int size) {
     return m;
 }
 
-MapItem* createItem(Map* m, int key, char** info) {
+MapItem* createItem(Map* m, int key, char** info, int n_str) {
     MapItem* item = (MapItem*)malloc(sizeof(MapItem));
     item->key = key;
-    int len = sizeof(info)/sizeof(char*);
-    item->info = (char**)malloc(sizeof(char*)*len);
-    for (int i=0; i<len; i++) {
+    item->n_str = n_str;
+    item->info = (char**)malloc(sizeof(char*)*n_str);
+    for (int i=0; i<n_str; i++) {
         item->info[i] = (char*)malloc(sizeof(char));
         strcpy(item->info[i], info[i]);
     }
-    m->used++;
     return item;
 }
 
@@ -40,12 +40,24 @@ void freeMap(Map* m) {
     free(m);
 }
 
-MapItem* insertItem(Map* m, int key, char** info) {
-    MapItem* item = createItem(m, key, info);
-    m->items[m->used] = item; /*
-                                m->used tells us there are m->used items in the map, so the last used index will be
-                                m->used-1, so we will link the new item at m->used index
-                              */
+void insertItem(Map* m, MapItem* item) {
+    m->items[item->key] = item; 
     m->used++;    
 }
 
+void mapPrint(Map* m) {
+    printf("Map it's composed of %d items and %d of them are being used\n\n", m->size, m->used);
+    int i, j;  
+    for (i = 0; i < m->size; i++) {
+        printf("Item at index %d: ", i);
+        if (m->items[i]) {
+            for (j = 0; j < m->items[i]->n_str - 1; j++) 
+                printf("%s, ", m->items[i]->info[j]);
+            printf("%s\n", m->items[i]->info[j]);
+        }
+        else
+            printf("\n");
+    }
+    printf("\n");
+    return;
+}

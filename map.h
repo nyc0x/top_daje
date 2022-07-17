@@ -1,30 +1,34 @@
 #define UNUSED -1
 
 typedef struct MapItem {
-    int key;                //PID
-    char** info;           //array string which contains PID data
+    int key;              //PID
+    char** info;          //array string which contains process data
+    int n_str;
 } MapItem;
 
 typedef struct Map {
     MapItem** items;      //pointer to pointer to map items
-    int size;           //map size
-    int used;           //keep track of used items
+    int size;             //map size
+    int used;             //keep track of used items
 } Map;
 
-//creates a pointer to the main structure
+//Creates a map
 Map* createMap(int size);
 
-//creates an item of the map
-MapItem* createItem(Map* map, int key, char** info);
+//Creates an item of the map
+MapItem* createItem(Map* map, int key, char** info, int n_str);
 
-//frees an item
+//Frees an item
 void freeItem(MapItem* item);
 
-//frees a map
+//Frees a map
 void freeMap(Map* map);
 
-//inserts an item into the map
-MapItem* insertItem(Map* map, int key, char** info);
+//Inserts an item into the map
+void insertItem(Map* map, MapItem* item);
 
-//search for the item at index 'key' and returns its info buffer, if not NULL
+//Search for the item at index 'key' and returns its info buffer, if not NULL
 char** getInfoBuf(Map* map, int key);
+
+//Prints the structure
+void mapPrint(Map* map);
