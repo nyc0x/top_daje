@@ -10,38 +10,54 @@
 #include <unistd.h>
 #include <limits.h>
 
-#define CHUNK 16
+ssize_t getFileLength(FILE* f) {
+    long len;
+    if (f) {
+        fseek (f, 0, SEEK_END);
+        len = ftell (f);
+        fseek (f, 0, SEEK_SET);
+    }
+    return len;
+}
 
-int getNumberProcs(int fd) {
-    char* buf = (char*)malloc(sizeof(char));
-    int res = read(fd, buf, 1);
-    while (res != EOF) {
-        
+int getNumberProcs(FILE* f, char* buf) {
+    if (f && buf) {
+
     }
 }
 
 int main(int argc, char** argv){
 
-    int fd = open("/proc/stat", O_RDONLY);
-    int n_proc = getNumberProcs(fd);
+    FILE* f = fopen("/proc/stsdasfst", "r");
+
+    if (!f) {
+        printf("Error while opening /proc/stat file: %s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    int fileLen = (int)getFileLength(f);
+    char* buf = (char*)malloc(sizeof(char)*fileLen);
+    int n_proc = getNumberProcs(f, buf);
+    
     //managing read op from /proc directory
     const char* s = "/proc/";
     DIR* dir = opendir(s);
     char** buf = (char**)malloc(sizeof(char*)*30000);
+    
     for (int i = 0; i < 30000; i++) {
         buf[i] = (char*)malloc(sizeof(char));
         buf[i] = NULL;
     }
-    if (!dir)
+    if (!dir) {
         printf("Error while opening %s directory: %s\n", s, strerror(errno));
-
+        exit(EXIT_FAILURE);
+    }
     struct dirent* ptr;
     ptr = readdir(dir);
+    
     int i = 0;
-
     while (ptr) {
-        strcpy(buf[i], ptr->d_name);
-        i++;
+        strcpy(buf[i++], ptr->d_name);
         ptr = readdir(dir); //updates the pointer to the next directory's entry
     }
 
@@ -103,11 +119,11 @@ int main(int argc, char** argv){
 
     printf("Updated map is:\n\n");
     mapPrint(m);
-    */
+    
 
     if (closedir(dir) < 0)
-        printf("Error while closing %s directory: %s\n", s, strerror(errno));   
-
+        printf("Error while closing %s directory: %s\n", s, strerror(errno)); 
+    */
     return 0;
 
 }
