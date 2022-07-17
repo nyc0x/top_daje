@@ -19,7 +19,7 @@ Map* createMap(int size);
 MapItem* createItem(Map* map, int key, char** info, int n_str);
 
 //Frees an item
-void freeItem(MapItem* item);
+void freeItem(Map* m, MapItem* item);
 
 //Frees a map
 void freeMap(Map* map);

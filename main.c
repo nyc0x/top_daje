@@ -1,8 +1,19 @@
 #include "map.h"
 #include <stdio.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
+#include <string.h>
 
 int main(int argc, char** argv){
 
+    //managing read op from /proc directory
+    const char* s = "/procio/";
+    DIR* proc = opendir(s);
+
+    if (!proc)
+        printf("Error while opening %s directory: %s\n", s, strerror(errno));
+    /*
     //setting map size
     int size = 12;
 
@@ -40,6 +51,21 @@ int main(int argc, char** argv){
     printf("------- START PRINTING THE STRUCTURE --------\n\n");
     mapPrint(m);
     printf("------- END PRINTING THE STRUCTURE --------\n");
+
+    printf("Deallocating item1 ...\n");
+    freeItem(m, item1);
+    printf("Deallocation completed\n");
+
+    printf("Updated map is:\n\n");
+    mapPrint(m);
+
+    printf("Deallocating item1 ...\n");
+    freeItem(m, item4);
+    printf("Deallocation completed\n");
+
+    printf("Updated map is:\n\n");
+    mapPrint(m);
+    */
 
     return 0;
 

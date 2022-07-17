@@ -25,11 +25,15 @@ MapItem* createItem(Map* m, int key, char** info, int n_str) {
     return item;
 }
 
-void freeItem(MapItem* item) {
-    int len = sizeof(item->info)/sizeof(char*);
-    for (int i = 0; i < len; i++)
+void freeItem(Map* m, MapItem* item) {
+    int key = item->key;
+    for (int i = 0; i < item->n_str; i++) 
         free(item->info[i]);
+    free(item->info);
     free(item);
+    m->items[key] = NULL;
+    m->size--;
+    m->used--;
 }
 
 void freeMap(Map* m) {
