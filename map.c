@@ -25,6 +25,10 @@ MapItem* createItem(Map* m, int key, char** info, int n_str) {
     return item;
 }
 
+MapItem** getItemsList(Map* m) {
+    return m->items;
+}
+
 void freeItem(Map* m, MapItem* item) {
     int key = item->key;
     for (int i = 0; i < item->n_str; i++) 

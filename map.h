@@ -30,5 +30,8 @@ void insertItem(Map* map, MapItem* item);
 //Search for the item at index 'key' and returns its info buffer, if not NULL
 char** getInfoBuf(Map* map, int key);
 
+//Returns a MapItem** object which points to all MapItem elements in the map
+MapItem** getItemsList(Map* m);
+
 //Prints the structure
 void mapPrint(Map* map);

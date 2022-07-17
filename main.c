@@ -1,18 +1,56 @@
 #include "map.h"
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <limits.h>
+
+#define CHUNK 16
+
+int getNumberProcs(int fd) {
+    char* buf = (char*)malloc(sizeof(char));
+    int res = read(fd, buf, 1);
+    while (res != EOF) {
+        
+    }
+}
 
 int main(int argc, char** argv){
 
+    int fd = open("/proc/stat", O_RDONLY);
+    int n_proc = getNumberProcs(fd);
     //managing read op from /proc directory
-    const char* s = "/procio/";
-    DIR* proc = opendir(s);
-
-    if (!proc)
+    const char* s = "/proc/";
+    DIR* dir = opendir(s);
+    char** buf = (char**)malloc(sizeof(char*)*30000);
+    for (int i = 0; i < 30000; i++) {
+        buf[i] = (char*)malloc(sizeof(char));
+        buf[i] = NULL;
+    }
+    if (!dir)
         printf("Error while opening %s directory: %s\n", s, strerror(errno));
+
+    struct dirent* ptr;
+    ptr = readdir(dir);
+    int i = 0;
+
+    while (ptr) {
+        strcpy(buf[i], ptr->d_name);
+        i++;
+        ptr = readdir(dir); //updates the pointer to the next directory's entry
+    }
+
+    //for (i = 0; i < 30000; i++)
+    //    printf("buf[%d]: %s\n", i, buf[i]);
+
+    //everything's alright, we can proceed reading the stuff inside the directory
+
+
     /*
     //setting map size
     int size = 12;
@@ -66,6 +104,9 @@ int main(int argc, char** argv){
     printf("Updated map is:\n\n");
     mapPrint(m);
     */
+
+    if (closedir(dir) < 0)
+        printf("Error while closing %s directory: %s\n", s, strerror(errno));   
 
     return 0;
 
