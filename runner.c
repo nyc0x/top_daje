@@ -11,14 +11,14 @@ pthread_t updater;
 pthread_t printer;
 pthread_t handler;
 
-int isON = 0;
+int isOn = 0;
 
 /*
 update -> scrive su SHM
 */
 void* update(void* arg){
     //Check if program is ON.
-    while(isON){
+    while(isOn){
         //Wait a timer.
         int ret = sleep(1); //Error handling on sleep         
         
@@ -30,7 +30,7 @@ void* update(void* arg){
 SHM -> HashTable -> printa a schermo
 */
 void* getData(void* arg){
-    while(isON){
+    while(isOn){
         //Wait a timer.
         int ret = sleep(1); //Error handling on sleep         
         
@@ -41,7 +41,7 @@ void* getData(void* arg){
 
 void* dispatch(void* arg){
     int key = *(int*)arg; 
-    if(isON){
+    if(isOn){
         switch (key){
         case 1 :
             printf("Dispatch to test \n");
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
     tcsetattr(0, TCSANOW, &info); /* set immediately */
 
 
-    isON = 1; // 1 program running 0 program not running
+    isOn = 1; // 1 program running 0 program not running
 
     //Creo thread di aggiornamento "updater"
     if(pthread_create(&updater, NULL, &update, NULL)){
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]){
         
         //EXIT CONDITION
         if(ch == 27){ //27 <-> ESC
-            isON = 0;
+            isOn = 0;
             break;
         }
         if(ch < 0 )
