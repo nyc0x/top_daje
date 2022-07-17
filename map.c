@@ -3,6 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 
+
+/*
+    descr:
+    args:
+    retval: 
+    author:
+*/
 Map* createMap(int size) {
     Map* m = (Map*)malloc(sizeof(Map));
     m->items = (MapItem**)malloc(sizeof(MapItem*)*size);
@@ -13,59 +20,96 @@ Map* createMap(int size) {
     return m;
 }
 
+//NOTA: non puoi creare un item con info NULL <-> ossia con 0 informazioni.
+/*
+    descr:
+    args:
+    retval: 
+    author:
+*/
 MapItem* createItem(Map* m, int key, char** info, int n_str) {
-    MapItem* item = (MapItem*)malloc(sizeof(MapItem));
-    item->key = key;
-    item->n_str = n_str;
-    item->info = (char**)malloc(sizeof(char*)*n_str);
-    for (int i=0; i<n_str; i++) {
-        item->info[i] = (char*)malloc(sizeof(char));
-        strcpy(item->info[i], info[i]);
+    MapItem* item = NULL;
+    if(!(m || info)){
+        item = (MapItem*)malloc(sizeof(MapItem));
+        item->key = key;
+        item->n_str = n_str;
+        item->info = (char**)malloc(sizeof(char*)*n_str);
+        for (int i=0; i<n_str; i++) {
+            item->info[i] = (char*)malloc(sizeof(char));
+            if(info[i])
+                strcpy(item->info[i], info[i]);
+        }
+        if(item->key < m->size){
+            m->items[item->key] = item; 
+            m->used++;
+        }
     }
     return item;
 }
 
 MapItem** getItemsList(Map* m) {
-    return m->items;
+    return m ? m->items: NULL;
 }
 
+/*
+    descr:
+    args:
+    retval: 
+    author:
+*/
 void freeItem(Map* m, MapItem* item) {
-    int key = item->key;
-    for (int i = 0; i < item->n_str; i++) 
-        free(item->info[i]);
-    free(item->info);
-    free(item);
-    m->items[key] = NULL;
-    m->size--;
-    m->used--;
-}
-
-void freeMap(Map* m) {
-    for (int i = 0; i < m->size; i++)
-        if (m->items[i])
-            free(m->items[i]);
-    free(m->items);
-    free(m);
-}
-
-void insertItem(Map* m, MapItem* item) {
-    m->items[item->key] = item; 
-    m->used++;    
-}
-
-void mapPrint(Map* m) {
-    printf("Map it's composed of %d items and %d of them are being used\n\n", m->size, m->used);
-    int i, j;  
-    for (i = 0; i < m->size; i++) {
-        printf("Item at index %d: ", i);
-        if (m->items[i]) {
-            for (j = 0; j < m->items[i]->n_str - 1; j++) 
-                printf("%s, ", m->items[i]->info[j]);
-            printf("%s\n", m->items[i]->info[j]);
+    if(! (item || m)){
+        int key = item->key;
+        for (int i = 0; i < item->n_str; i++){
+            if(item->info[i])
+                free(item->info[i]);
         }
-        else
-            printf("\n");
+        free(item->info);
+        free(item);
+        m->items[key] = NULL;
+        m->size--;
+        m->used--;
     }
-    printf("\n");
+}
+
+/*
+    descr:
+    args:
+    retval: 
+    author:
+*/
+void freeMap(Map* m) {
+    if(m && m->items){
+        for (int i = 0; i < m->size; i++)
+            if (m->items[i])
+                free(m->items[i]);
+        free(m->items);
+        free(m);
+    }
+}
+
+
+/*
+    descr:
+    args:
+    retval: 
+    author:
+*/
+void mapPrint(Map* m) {
+    if(m && m->items){
+        printf("Map it's composed of %d items and %d of them are being used\n\n", m->size, m->used);
+        int i, j;  
+        for (i = 0; i < m->size; i++) {
+            printf("Item at index %d: ", i);
+            if (m->items[i]) {
+                for (j = 0; j < m->items[i]->n_str - 1; j++) 
+                    printf("%s, ", m->items[i]->info[j]);
+                printf("%s\n", m->items[i]->info[j]);
+            }
+            else
+                printf("\n");
+        }
+        printf("\n"); 
+    }
     return;
 }

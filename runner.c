@@ -2,10 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <termios.h>
 #include <time.h>
 
-struct termios info;
 
 pthread_t updater;
 pthread_t printer;
@@ -56,13 +54,6 @@ void* dispatch(void* arg){
 
 int main(int argc, char *argv[]){
 
-    tcgetattr(0, &info);          /* get current terminal attirbutes; 0 is the file descriptor for stdin */
-    info.c_lflag &= ~ICANON;      /* disable canonical mode */
-    info.c_cc[VMIN] = 1;          /* wait until at least one keystroke available */
-    info.c_cc[VTIME] = 0;         /* no timeout */
-    tcsetattr(0, TCSANOW, &info); /* set immediately */
-
-
     isOn = 1; // 1 program running 0 program not running
 
     //Creo thread di aggiornamento "updater"
@@ -99,10 +90,6 @@ int main(int argc, char *argv[]){
     pthread_join(printer ,NULL);
     pthread_join(handler,NULL);
     
-    //SET BACK TERMINAL CONFIGURATION
-    tcgetattr(0, &info);
-    info.c_lflag |= ICANON;
-    tcsetattr(0, TCSANOW, &info);
-    
+
     return 0;
 }

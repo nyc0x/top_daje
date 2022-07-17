@@ -2,7 +2,14 @@
 #include <menu.h>
 #include <string.h>
 #include <stdlib.h>	
+#include "../map.h"
 
+
+ITEM ** getItems(Map** map){
+    MapItem* values = getItemsList(map);
+    ITEM** items = (ITEM **) calloc(map->)
+    return items;
+}
 
 
 int main(int argc, char const *argv[])
@@ -55,7 +62,18 @@ int main(int argc, char const *argv[])
 
     */
 
-    MENU *bottom_menu;
+    MENU *mainList;
+    WINDOW * menu;
+    Map* map ;
+
+    menu = new_menu(getItems(map));
+
+    //Fill in the items. 
+    /*
+        MAP -> (pid, item) -> ()-> .. ->() -> NULL
+         MAP ->| -| -> [(pid0 , item0), .. , (pidN , itemN )] 
+    */
+
 
 
     //CLEAN-UP

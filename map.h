@@ -1,5 +1,11 @@
 #define UNUSED -1
 
+/*
+  Map implemented as an arraylist of MapItem.
+  every MapItem has key equal to the index of the MapItem in the Map 
+  since every process has a different PID we won't have any collision, so we're highly 
+  efficient.
+*/
 typedef struct MapItem {
     int key;              //PID
     char** info;          //array string which contains process data
@@ -23,9 +29,6 @@ void freeItem(Map* m, MapItem* item);
 
 //Frees a map
 void freeMap(Map* map);
-
-//Inserts an item into the map
-void insertItem(Map* map, MapItem* item);
 
 //Search for the item at index 'key' and returns its info buffer, if not NULL
 char** getInfoBuf(Map* map, int key);
