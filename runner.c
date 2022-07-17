@@ -103,8 +103,6 @@ int main(int argc, char *argv[]){
     tcgetattr(0, &info);
     info.c_lflag |= ICANON;
     tcsetattr(0, TCSANOW, &info);
-
-    
     
     return 0;
 }
