@@ -1,0 +1,75 @@
+STATS
+
+'*' indicates the stats that are actually used by the program.
+
+
+Stats tracked of every process /proc/[PID]/status
+*   Name                       Command run by this process
+*   State                      Current  state  of  the process.  One of "R (running)", "S (sleeping)", "D (disk sleep)", "T (stopped)", "T (tracing stop)", "Z
+                               (zombie)", or "X (dead)"
+*   VmPeak                     Peak virtual memory size
+*   VmSize                     Virtual memory size
+    VmData,VmStk,VmExe         Size of data, stack, and text segments
+*   Threads:                   Number of threads in process containing this thread.
+*   voluntary_ctxt_switches,   ----- READ LINE BELOW ---
+*   nonvoluntary_ctxt_switches Number of voluntary and involuntary context switches
+
+Stats tracked of every process /proc/[PID]/stat
+*   (1) pid
+*   (3) state
+*   (14) utime       Amount of time that this process has been scheduled in user mode, measured in clock  ticks  (divide  by  sysconf(_SC_CLK_TCK)).
+                        This  includes guest time, guest_time (time spent running a virtual CPU, see below), so that applications that are not aware of
+                        the guest time field do not lose that time from their calculations.
+*   (15) stime                         Amount of time that this process has been scheduled in kernel mode, measured in clock ticks (divide by sysconf(_SC_CLK_TCK)).
+*   (20) num_threads Number of threads in this process 
+*   (22) starttime   The time the process started after system boot
+*   (23) vsize       Virtual memory size in bytes.
+    
+
+Stats tracked of every process /proc/[PID]/statm
+*    size (1) total program size
+
+Stats tracked of every process /proc/[PID]/io
+*   read_bytes  Attempt to count the number of bytes which this process really did cause to be fetched from the storage layer.  This  is  accurate
+                     for block-backed filesystems.
+*   write_bytes Attempt to count the number of bytes which this process caused to be sent to the storage layer.
+
+Stats tracked of every process /proc/[PID]/fd/
+*    [num_files_opened] This is a subdirectory containing one entry for each file which the process has open, named by its file descriptor, and which is a symbolic link to th
+e actual file.
+    
+Stats tracked of every process /proc/[pid]/exe:
+    this file is a symbolic link containing the actual pathname of the executed command.
+
+[SYS STATS] used to get the specific process stats.
+Stats tracked of every process /proc/stat:
+*   user                      (1) Time spent in user mode.
+*   system                    Time spent in system mode.
+*   idle                      (4) Time spent in the idle task.  This value should be USER_HZ times the second entry in the /proc/uptime pseudo-file.
+*   page   {NOT AVAILABLE}    The number of pages the system paged in and the number that were paged out (from disk).
+*   ctxt                      The number of context switches that the system underwent.
+*   btime                     boot time, in seconds since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
+*   processes                 Number of forks since boot.
+*   procs_running             Number of processes in runnable state.  
+*   procs_blocked             Number of processes blocked waiting for I/O to complete.
+
+Stats tracked of every process /proc/uptime:
+    This file contains two numbers (values in seconds): the uptime of the system (including time spent in suspend) and the amount of time  spent
+              in the idle process.
+
+
+
+
+SYS Header HYP:
+ ________________________________________________________________________
+|       |       |           |           |               |                |
+|#pages | #ctxt | boot_time | processes | procs_running | procs_blocked. |
+|_______|_______|___________|__________ |_______________|________________|
+
+
+HEADER Hypothesis: 
+ ________________________________________________________________________________________________________________________________________________________________________
+|     |                |            |              |                |              |       |          |          |              |             |            |             |
+| PID |  name/command  | %user_mode | %kernel_mode | start_time(ms) | #file_opened | State | #threads |  size_VM | peak_size_VM |  total_size | read_bytes | write_bytes |
+|_____|________________|____________|______________|________________|______________|_______|__________|__________|______________|_____________|____________|_____________|
+
