@@ -1,14 +1,29 @@
-#include <curses.h>
-#include <menu.h>
-#include <string.h>
-#include <stdlib.h>	
-#include "../map.h"
+#include "ui.h"
 
 
-ITEM ** getItems(Map** map){
-    MapItem* values = getItemsList(map);
-    ITEM** items = (ITEM **) calloc(map->m)
-    return items;
+
+
+ITEM ** getItems(int rows , int cols){
+
+    ListHead head;    
+    List_init(&head);
+    getAllProcData(&head);
+    int listSize = head.size;
+
+    ITEM** listItem = (ITEM**) malloc(sizeof(ITEM*)*listSize);
+
+
+    ListItem* it = head.first;
+    while(it){
+        ProcListItem* elem = (ProcListItem*) it;
+        ProcData* pd = elem->data;
+        //mvprintw(row/2,(col-strlen(mesg))/2,"%s",mesg);
+        printw("%d\t%s\t%c\t%lu\t%lu\t%ld\t%llu\t%lu\n",(int)pd->pid, pd->comm, pd->state, pd->utime, pd->stime, pd->num_threads,pd->starttime, pd->vsize);
+        
+        it=it->next;
+    }
+
+    return NULL;
 }
 
 
@@ -63,20 +78,18 @@ int main(int argc, char const *argv[])
     */
 
     MENU *mainList;
-    WINDOW * menu;
-    Map* map ;
+    WINDOW * menu_win;
+    
+    int row, col;
+    getmaxyx(stdscr,row,col);	
 
-    menu = new_menu(getItems(map));
-
-    //Fill in the items. 
-    /*
-        MAP -> (pid, item) -> ()-> .. ->() -> NULL
-         MAP ->| -| -> [(pid0 , item0), .. , (pidN , itemN )] 
-    */
-
-
-
+    mainList = new_menu(getItems(row, col));
+    
+    post_menu(mainList);
+    refresh();
+    
     //CLEAN-UP
+    getch();
     endwin(); //Disable curses mode
 
     return 0;
