@@ -8,7 +8,7 @@
     descr:
     args:
     retval: 
-    author:
+    author: [NDP]
 */
 Map* createMap(int size) {
     Map* m = (Map*)malloc(sizeof(Map));
@@ -25,7 +25,7 @@ Map* createMap(int size) {
     descr:
     args:
     retval: 
-    author:
+    author: [NDP]
 */
 MapItem* createItem(Map* m, int key, char** info, int n_str) {
     MapItem* item = NULL;
@@ -47,6 +47,7 @@ MapItem* createItem(Map* m, int key, char** info, int n_str) {
     return item;
 }
 
+//self-explanatory function
 MapItem** getItemsList(Map* m) {
     return m ? m->items: NULL;
 }
@@ -55,7 +56,7 @@ MapItem** getItemsList(Map* m) {
     descr:
     args:
     retval: 
-    author:
+    author: [NDP]
 */
 void freeItem(Map* m, MapItem* item) {
     if(! (item || m)){
@@ -76,7 +77,7 @@ void freeItem(Map* m, MapItem* item) {
     descr:
     args:
     retval: 
-    author:
+    author: [NDP]
 */
 void freeMap(Map* m) {
     if(m && m->items){
@@ -93,7 +94,7 @@ void freeMap(Map* m) {
     descr:
     args:
     retval: 
-    author:
+    author: [NDP]
 */
 void mapPrint(Map* m) {
     if(m && m->items){

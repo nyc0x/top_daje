@@ -1,5 +1,6 @@
 #include "parser.h"
-#include "map.h"
+//#include "map.h"
+#include "../util.h"
 
 /*
     descr:  This function evaluates a string representing an header from /proc/stat file 
@@ -121,8 +122,6 @@ char** getProcessStat(char* pid ){
     ssize_t n = getline(&line, &n , fp);
     char* token;
     
-    puts("DYBALA ALLA ROMA");
-
     if(n != -1){  /* from kernel we know it's just a one line file.  */
         token = strtok(line, " ");
         int i = 0,proc_idx = 0;
@@ -150,9 +149,26 @@ char** getProcessStat(char* pid ){
     retval: 
     author: [NDP] 
 */
-char** getAllPids(){
+void getAllPids(char** buf){
+    DIR* dir = opendir(PROC_PATH);
     
-    return NULL;
+    if (!dir) {
+        printf("Error while opening %s directory: %s\n", PROC_PATH, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    
+    struct dirent* dir_data = readdir(dir); //Do not free this ptr (see man readdir)!
+    int i=0;
+    while (dir_data) {
+        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0)
+            buf[i++] = dir_data->d_name;
+        dir_data = readdir(dir);
+    }
+
+    if (closedir(dir) < 0)
+        printf("Error while closing %s directory: %s\n", PROC_PATH, strerror(errno)); 
+    
+    return;
 }
 
 /*
@@ -161,7 +177,7 @@ char** getAllPids(){
     retval: 
     author: [NDP] 
 */
-Map* populateMapProcesses(){
+/*Map* populateMapProcesses(){
     //crei una mappa "map"
     
     //for pid in pids
@@ -170,19 +186,26 @@ Map* populateMapProcesses(){
     
     //return Map
     return NULL;
-}
+}*/
 
 
 //TODO: delete main after implementing get pid stats
 int main(int argc, char const *argv[]){
     
     //Testing
-    char** a = getProcessStat("102");
+    /*char** a = getProcessStat("102");
     for(int i = 0 ; i < NUM_PROC_STATS; i++){
         printf("%s : %s \n", PROC_STATS_HEADERS[i], a[i]);
-    }
+    }*/
 
-    
+    int n_procs = countDir(PROC_PATH);
+    //Map* m = createMap(n_procs);
+
+    char** pids = (char**)malloc(sizeof(char*)*n_procs);
+    getAllPids(pids);
+
+    for (int i=0; i<n_procs; i++)
+        printf("pid[%s]\n", pids[i]);    
     
     return 0;
 }

@@ -40,7 +40,7 @@ int countDir(const char* path ){
     int num_dir=0;
     struct dirent* dir_data = readdir(dir_p); //Do not free this ptr (see man readdir)!
     while (dir_data) {
-        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.')
+        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0)
             num_dir++;
         dir_data = readdir(dir_p);
     }
