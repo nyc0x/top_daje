@@ -238,6 +238,11 @@ void getAllProcData(ListHead* head){
     return;
 }
 
+void ProcData_print(ProcData* data) {
+    printf("pid: %d\n, name: %s\n, state: %s\n, ", data->pid, data->comm, data->state);
+    printf("user_time: %lu\n, sys_time: %lu\n, n_threads: %ld\n, ", data->utime, data->stime, data->num_threads);
+    printf("start_time: %llu\n, virtual_mem_size: %lu\n", data->starttime, data->vsize);
+}
 
 void ProcListItem_print(ListHead* head){
   ListItem* aux=head->first;
