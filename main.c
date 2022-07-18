@@ -26,6 +26,14 @@ int getNumberProcs(FILE* f, char* buf) {
     }
 }
 
+/*
+    for dir in directories:
+        Open 'stat'
+            fai parsing del file.
+            riempi l'array con pid name....
+            filli la mappa.
+*/
+
 int main(int argc, char** argv){
 
     FILE* f = fopen("/proc/stsdasfst", "r");

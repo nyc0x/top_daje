@@ -44,7 +44,7 @@ Stats tracked of every process /proc/[pid]/exe:
 [SYS STATS] used to get the specific process stats.
 Stats tracked of every process /proc/stat:
 *   user                      (1) Time spent in user mode.
-*   system                    Time spent in system mode.
+*   system                    (3) Time spent in system mode.
 *   idle                      (4) Time spent in the idle task.  This value should be USER_HZ times the second entry in the /proc/uptime pseudo-file.
 *   page   {NOT AVAILABLE}    The number of pages the system paged in and the number that were paged out (from disk).
 *   ctxt                      The number of context switches that the system underwent.
@@ -68,8 +68,13 @@ SYS Header HYP:
 
 
 HEADER Hypothesis: 
- ________________________________________________________________________________________________________________________________________________________________________
-|     |                |            |              |                |              |       |          |          |              |             |            |             |
-| PID |  name/command  | %user_mode | %kernel_mode | start_time(ms) | #file_opened | State | #threads |  size_VM | peak_size_VM |  total_size | read_bytes | write_bytes |
-|_____|________________|____________|______________|________________|______________|_______|__________|__________|______________|_____________|____________|_____________|
+ ________________________________________________________________________________________________________________________________________________________________________________________
+|     |                |            |              |                |              |       |          |          |              |             |            |             |               |
+| PID |  name/command  | %user_mode | %kernel_mode | start_time(ms) | #file_opened | State | #threads |  size_VM | peak_size_VM |  total_size | read_bytes | write_bytes | elapsed_time  |
+|_____|________________|____________|______________|________________|______________|_______|__________|__________|______________|_____________|____________|_____________|_______________|
 
+elapsed_time = now() - start_time(ms)
+
+1 prendiamo le stat
+2 le colleghiamo alla UI
+3 attacchiamo il parallelismo.
