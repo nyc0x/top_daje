@@ -1,9 +1,10 @@
-
+#pragma once
 /* *[BEGIN] PARSER CONSTANTS */
 
     /* *[BEGIN] SYS STAT CONSTANTS */
     #define SYS_STATS_PATH "/proc/stat" 
     #define PROC_PATH "/proc/"
+
 
     static const char* KEY_WORDS[] = {
         "cpu",

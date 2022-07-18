@@ -4,7 +4,7 @@
 #include <string.h>
 #include "../constant.h"
 #include "../data_structures/linked_list.h"
-
+#include "../util.h"
 
 /*type assigned from man 5 proc section /proc/[pid]/stat*/
 typedef struct ProcData{
@@ -26,3 +26,7 @@ typedef struct ProcListItem{
 
 
 long* getSystemStat(FILE* fp);
+
+void getAllProcData(ListHead* head);
+
+void procListItem_print(ListHead* head);

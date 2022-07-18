@@ -80,3 +80,33 @@ long int countProcs(const char* path){
 
     return num_procs;
 }
+
+
+
+/*
+    descr: 
+    args:   
+    retval: 
+    author: [NDP] 
+*/
+void getAllPids(char** buf){
+    DIR* dir = opendir(PROC_PATH);
+    
+    if (!dir) {
+        printf("Error while opening %s directory: %s\n", PROC_PATH, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    
+    struct dirent* dir_data = readdir(dir); //Do not free this ptr (see man readdir)!
+    int i=0;
+    while (dir_data) {
+        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0)
+            buf[i++] = dir_data->d_name;
+        dir_data = readdir(dir);
+    }
+
+    if (closedir(dir) < 0)
+        printf("Error while closing %s directory: %s\n", PROC_PATH, strerror(errno)); 
+    
+    return;
+}

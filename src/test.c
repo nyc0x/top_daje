@@ -40,9 +40,19 @@ void testSysStat(){
 */
 void testCountDir(){
     //TODO: add more tests.
-    printf("[TEST]: I found %d directories in this path : %s \n",countDir("./"),"./" );
+    printf("[TEST]: I found %ld directories in this path : %s \n",countDir("./"),"./" );
     return;
 }
+
+
+void testFillStatList(){
+    ListHead head;    
+    List_init(&head);
+    getAllProcData(&head);
+    procListItem_print(&head);
+    return;
+}
+
 
 /*
     CMD: make test
@@ -51,9 +61,9 @@ int main(int argc, char const *argv[]){
     
     printf("Start testing !\n");
 
-    testSysStat();
-    testCountDir();
-
+    //testSysStat();
+    //testCountDir();
+    testFillStatList();
 
     printf("End testing !\n");
     

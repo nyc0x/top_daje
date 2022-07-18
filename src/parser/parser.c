@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "../util.h"
+
 
 /*
     descr:  This function evaluates a string representing an header from /proc/stat file 
@@ -11,7 +11,6 @@
             -1 {token} is not valid.
     author: [MZ]
 */
-/*
 int isValidHeader(char* token ){
     for(int i = 0; i < KEY_WORD_LEN; i++)
         if (!strcmp(token,KEY_WORDS[i]))
@@ -21,7 +20,7 @@ int isValidHeader(char* token ){
                 return 0; 
     return -1; 
 }
-*/
+
 /*
     descr:  Given a file pointer to /proc/stat file, allocates and returns an array of long integers 
             where each indexed value matches "SYS_STATS_HEADERS" semantics (see "constant.h") 
@@ -38,7 +37,7 @@ int isValidHeader(char* token ){
              7         Number of processes blocked waiting for I/O to complete.
     author: [MZ]
 */
-/*
+//TODO : improve current implementation performances
 long* getSystemStat(FILE* fp){
     
     if(!fp) return NULL; //Never trust nobody ! 
@@ -71,135 +70,19 @@ long* getSystemStat(FILE* fp){
             }
         }
     }
-
-    
     //* Clean-up
     //* [NOTE]: free(token) NOT NEEDED since token is updated with NULL when there is no more token available!
-    
     free(line);
+    
     return sys_stats_values;
 }
-*/
-
-/*
-    descr: 
-    args:   
-    retval: 
-    author: [MZ] 
-*/
-/*
-int isInValidOffset(int idx){
-    for(int i = 0; i < NUM_PROC_STATS ;i++)
-        if(idx == PROC_STAT_OFFSET[i])
-            return 0;
-    return -1;
-}
-*/
 
 
 /*
     descr: 
     args:   
     retval: 
-    author: [MZ] 
-*/
-/*
-char** getProcessStat(char* pid ,ProcUsage** rankProcUsage, int index){
-    
-    int lenghtPid = (int) strlen(pid);
-    char formattedPath[lenghtPid+12];
-
-    strcpy(formattedPath, "/proc/");
-    strcat(formattedPath, pid);
-    strcat(formattedPath, "/stat");
-    
-    FILE* fp = fopen(formattedPath, "r");
-   
-    if(fp == NULL){
-        printf("Error while opening /proc/stat file: %s\n", strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-
-    char** proc_stats_values = (char**)malloc(NUM_SYS_STATS*sizeof(char*));
-
-    char* line = NULL;
-    ssize_t val = 1;
-    ssize_t n = getline(&line, &val , fp);
-    char* token;
-    
-    if(n != -1){  //from kernel we know it's just a one line file.  
-        
-        token = strtok(line, " ");
-        
-        int i = 0,proc_idx = 0;
-        while(token != NULL){
-            if(!isInValidOffset(i)){
-                int length = (int) strlen(token);
-                
-                proc_stats_values[proc_idx] = (char*)malloc(sizeof(char)*(length+1));
-                strcpy(proc_stats_values[proc_idx], token);
-              
-                //printf("token %s : proc_stats : %s \n", token, proc_stats_values[proc_idx]);
-                proc_idx++;
-            }
-            
-            i++;
-            token = strtok(0, " ");
-            
-        }
-    }
-    //TODO: crea init() for ProcUsage and insert functions.
-    ProcUsage* item = (ProcUsage*) malloc(sizeof(ProcUsage));
-    item->pid = atoi(pid);
-    item->cpu_usage = (float) atoi(proc_stats_values[3]); //TODO: change this value to the correct ones. Leave it as it is just for testing.
-    //Append to global rankProtUsage array.
-    rankProcUsage[index] = item;
-    
-    fclose(fp);
-    return proc_stats_values;
-}
-*/
-
-
-
-/*
-    descr: 
-    args:   
-    retval: 
-    author: [NDP] 
-*/
-/*
-void getAllPids(char** buf){
-    DIR* dir = opendir(PROC_PATH);
-    
-    if (!dir) {
-        printf("Error while opening %s directory: %s\n", PROC_PATH, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-    
-    struct dirent* dir_data = readdir(dir); //Do not free this ptr (see man readdir)!
-    int i=0;
-    while (dir_data) {
-        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0)
-            buf[i++] = dir_data->d_name;
-        dir_data = readdir(dir);
-    }
-
-    if (closedir(dir) < 0)
-        printf("Error while closing %s directory: %s\n", PROC_PATH, strerror(errno)); 
-    
-    return;
-}
-
-*/
-
-
-
-/*
-    descr: 
-    args:   
-    retval: 
-    author: [MZ] 
+    author: [MZ] [NDP]
 */
 void getAllProcData(ListHead* head){
     if(!head) printf("Error list head vuota; %s", strerror(errno)); 
@@ -232,17 +115,7 @@ void getAllProcData(ListHead* head){
                 FILE* fp = fopen(formattedPath, "r");
 
                 if(!fp){ printf("Error while opening /proc/stat file: %s\n", strerror(errno)); exit(EXIT_FAILURE); }
-                /*
-                //See credits and constant.h
-                pid_t*               pid         =   (pid_t*) malloc(sizeof(pid_t));                                //1
-                char*                comm        =   (char*) malloc(sizeof(char));                                  //2
-                char*                state       =   (char*) malloc(sizeof(char));                                  //3
-                long unsigned*       utime       =   (long unsigned *) malloc(sizeof(long unsigned));
-                long unsigned*       stime       =   (long unsigned *) malloc(sizeof(long unsigned));
-                long unsigned*       vsize       =   (long unsigned *) malloc(sizeof(long unsigned));               //14 , 15 , 23
-                long*                num_threads =   (long *) malloc(sizeof(long));                                 //20
-                long long unsigned*  starttime   =   (long long unsigned *) malloc(sizeof(long long unsigned));     //22
-                */
+          
                 pid_t pid;         
                 char* comm;
                 char state;
@@ -251,28 +124,52 @@ void getAllProcData(ListHead* head){
                 long unsigned vsize;              
                 long num_threads;
                 long long unsigned starttime;
-                
+             
+                char* line = NULL;
+                size_t n = 1;
 
-                //                    1    2   3  4   5   6   7   8   9   10   11   12   13   14  15  16    17  18   19   20  21  22   23 
-                //int ret = fscanf(fp, "%d (%s) %c %*d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %ld %*ld %llu %*lu ",(int*) pid,comm,state,utime,stime,num_threads,starttime,vsize);
-                int ret = fscanf(fp, "%d (%s) %c %*d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %ld %*ld %llu %*lu ",(int*) &pid,comm,&state,&utime,&stime,&num_threads,&starttime,&vsize);
+                size_t bytes_read = getline(&line,&n,fp);
+                if(bytes_read != -1){
+                    if(line){
+                        int token_num = 1;
+                        char* token = strtok(line, " ");
+                        while (token){
+                            switch (token_num){
+                                case 1:
+                                    pid = atoi(token);
+                                    break;
+                                case 2:
+                                    comm = token; //TODO: add function to strip the parenthesis.
+                                    break;
+                                case 3:
+                                    state = token[0];
+                                    break;
+                                case 14 :
+                                    utime = (long unsigned) atol(token);
+                                    break;
+                                case 15:
+                                    stime = (long unsigned) atol(token);
+                                    break;
+                                case 20:
+                                    vsize = (long unsigned) atol(token);
+                                    break;
+                                case 22:
+                                    num_threads = atol(token);
+                                    break;
+                                case 23:
+                                    starttime = (long long unsigned) atoll(token);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            token_num++;
+                            token = strtok(0, " ");
+                        }
+                        
+                    }
+                }
                 
-                
-
-                //printf("%d (%s) %C %lu %lu %ld %llu \n",pid,comm,state,utime,stime,num_threads,starttime,vsize);
-                if (ret == EOF) { printf("Error while reading from file %s: Error: %s\n", formattedPath, strerror(errno)); exit(EXIT_FAILURE);}
-                item->data = (ProcData*) calloc(1,sizeof(ProcData));
-
-                /*
-                item->data->pid =  *pid;
-                item->data->comm = comm;
-                item->data->state = *state;
-                item->data->utime = *utime;
-                item->data->stime =  *stime;
-                item->data->vsize =  *vsize;
-                item->data->num_threads = *num_threads;
-                item->data->starttime =  *starttime;
-                */
+                item->data = (ProcData*) malloc(sizeof(ProcData));
                 item->data->pid =  pid;
                 item->data->comm = comm;
                 item->data->state = state;
@@ -312,18 +209,5 @@ void procListItem_print(ListHead* head){
   }
   printf("]\n");
 }
-
-
-//TODO: delete main after implementing get pid stats
-int main(int argc, char const *argv[]){
-    ListHead head;
-    
-    List_init(&head);
-    getAllProcData(&head);
-    procListItem_print(&head);
-
-    return 0;
-}
-
 
 
