@@ -27,7 +27,7 @@ long getFileLength(FILE* fp ){
     retval: Non negative integer matching the number of non hidden directories in path.
     author: [NDP] 
 */
-int countDir(const char* path ){
+long int countDir(const char* path){
     if(!path) printf("Error %s\n", strerror(errno)); //TODO: add better error handling
     
     DIR* dir_p = opendir(path);
@@ -37,10 +37,10 @@ int countDir(const char* path ){
         exit(EXIT_FAILURE);
     }
     
-    int num_dir=0;
+    long int num_dir=0;
     struct dirent* dir_data = readdir(dir_p); //Do not free this ptr (see man readdir)!
     while (dir_data) {
-        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0)
+        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.')
             num_dir++;
         dir_data = readdir(dir_p);
     }
@@ -49,4 +49,29 @@ int countDir(const char* path ){
         printf("Error while closing %s directory: %s\n", path, strerror(errno)); 
 
     return num_dir;
+}
+
+
+long int countProcs(const char* path){
+    if(!path) printf("Error %s\n", strerror(errno)); //TODO: add better error handling
+    
+    DIR* dir_p = opendir(path);
+    
+    if (!dir_p) {
+        printf("Error while opening %s directory: %s\n", path, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    
+    long int num_procs=0;
+    struct dirent* dir_data = readdir(dir_p); //Do not free this ptr (see man readdir)!
+    while (dir_data) {
+        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0)
+            num_procs++;
+        dir_data = readdir(dir_p);
+    }
+
+    if (closedir(dir_p) < 0)
+        printf("Error while closing %s directory: %s\n", path, strerror(errno)); 
+
+    return num_procs;
 }
