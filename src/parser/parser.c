@@ -198,7 +198,7 @@ int main(int argc, char const *argv[]){
         printf("%s : %s \n", PROC_STATS_HEADERS[i], a[i]);
     }*/
 
-    int n_procs = countDir(PROC_PATH);
+    long int n_procs = countProcs(PROC_PATH);
     //Map* m = createMap(n_procs);
 
     char** pids = (char**)malloc(sizeof(char*)*n_procs);
