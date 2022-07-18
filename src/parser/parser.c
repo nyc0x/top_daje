@@ -1,6 +1,7 @@
 #include "parser.h"
 //#include "map.h"
 #include "../util.h"
+#include "linked_list.h"
 
 /*
     descr:  This function evaluates a string representing an header from /proc/stat file 
@@ -102,8 +103,8 @@ int isInValidOffset(int idx){
     author: [MZ] 
 */
 char** getProcessStat(char* pid ,ProcUsage** rankProcUsage, int index){
-    int lenghtPid = (int)strlen(pid);
     
+    int lenghtPid = (int) strlen(pid);
     char formattedPath[lenghtPid+12];
 
     strcpy(formattedPath, "/proc/");
@@ -111,7 +112,7 @@ char** getProcessStat(char* pid ,ProcUsage** rankProcUsage, int index){
     strcat(formattedPath, "/stat");
     
     FILE* fp = fopen(formattedPath, "r");
-    
+   
     if(fp == NULL){
         printf("Error while opening /proc/stat file: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
@@ -135,12 +136,8 @@ char** getProcessStat(char* pid ,ProcUsage** rankProcUsage, int index){
                 
                 proc_stats_values[proc_idx] = (char*)malloc(sizeof(char)*(length+1));
                 strcpy(proc_stats_values[proc_idx], token);
-                /*for(int j = 0; j < length; j++){
-                    proc_stats_values[proc_idx][j] = token[j]; 
-                }
-                proc_stats_values[proc_idx][length] = '\0';
-                */
-                printf("token %s : proc_stats : %s \n", token, proc_stats_values[proc_idx]);
+              
+                //printf("token %s : proc_stats : %s \n", token, proc_stats_values[proc_idx]);
                 proc_idx++;
             }
             
@@ -156,8 +153,6 @@ char** getProcessStat(char* pid ,ProcUsage** rankProcUsage, int index){
     //Append to global rankProtUsage array.
     rankProcUsage[index] = item;
     
-    puts("DYBALA");
-
     fclose(fp);
     return proc_stats_values;
 }
@@ -195,53 +190,74 @@ void getAllPids(char** buf){
 
 
 
+
+
+/*
+    descr: 
+    args:   
+    retval: 
+    author: [MZ] 
+*/
+void getAllProcData(ListHead* head){
+    if(!head) printf("Error list head vuota; %s", strerror(errno)); 
+
+    DIR* dir = opendir(PROC_PATH);
+    
+    if (!dir) {
+        printf("Error while opening %s directory: %s\n", PROC_PATH, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    
+    struct dirent* dir_data = readdir(dir); //Do not free this ptr (see man readdir)!
+    int i=0;
+    while (dir_data) {
+        if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0){ // IF IS A PID DIRECTORY
+            
+            int lenghtPid = (int) strlen(dir_data->d_name);
+            char formattedPath[lenghtPid+12];
+
+            strcpy(formattedPath, "/proc/");
+            strcat(formattedPath, dir_data->d_name);
+            strcat(formattedPath, "/stat");
+            //Creiamo list item con i campi di /proc/[pid]/stat
+
+            ProcListItem* item = (ProcListItem*) malloc(sizeof(ProcListItem));
+
+            List_insert(head, head->last, item );
+
+
+            //Append list item to list head
+            
+        }
+        dir_data = readdir(dir);
+    }
+
+
+    if (closedir(dir) < 0)
+        printf("Error while closing %s directory: %s\n", PROC_PATH, strerror(errno)); 
+    return;
+}
+
+
+void ProcListItem_print(ListHead* head){
+  ListItem* aux=head->first;
+  printf("[");
+  while(aux){
+    ProcListItem* element = (ProcListItem*) aux;
+    printf("%d ", element->data);
+    aux=aux->next;
+  }
+  printf("]\n");
+}
+
+
 //TODO: delete main after implementing get pid stats
 int main(int argc, char const *argv[]){
+    ListHead head;
     
-    //Testing
-  /*  
-    char** a = getProcessStat("4");
-    for(int i = 0 ; i < NUM_PROC_STATS; i++){
-        printf("%s : %s \n", PROC_STATS_HEADERS[i], a[i]);
-    }
-*/
-    //TODO: make init function for rankProcUsage.
-    long int n_procs = countProcs(PROC_PATH);
-    //printf("%ld \n" , n_procs);
-
-    ProcUsage** rankProcUsage = (ProcUsage**) malloc(sizeof(ProcUsage*)*n_procs);
-
-    char** pids = (char**)malloc(sizeof(char*)*n_procs);
-    getAllPids(pids);
-      
-    char** arrayData[n_procs];
-    //Iterazione 0 costo O(n_procs)
-  
-    for(int i = 0; i < n_procs; i++){
-        arrayData[i] = getProcessStat(pids[i], rankProcUsage, i);
-        for(int j = 0; j < NUM_PROC_STATS; j++)
-            printf("%s : ",arrayData[i][j]);
-        printf("\n");   
-    }
-
-    /*
-    //Iterazione 1 costo O(n_procs)
-    RankMap* localMap = (RankMap*) malloc(sizeof(RankMap));
-    localMap->size = n_procs;    
-    localMap->items = (RankMapItem**) malloc(sizeof(RankMapItem*)*n_procs);
-
-    for(int i =0 ; i < n_procs; i++){
-        RankMapItem* item = (RankMapItem*) malloc(sizeof(RankMapItem));
-
-    }
-*/
-    //for pid in pids:
-        //char** arr = getProcessStat(pid)
-
-    //TESTING
-    /*for (int i=0; i<n_procs; i++)
-        printf("pid[%s]\n", pids[i]);    
-    */
+    List_init(&head);
+    getAllProcData(&head);
+    
     return 0;
 }
 

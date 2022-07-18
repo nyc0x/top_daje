@@ -3,23 +3,26 @@
 #include <errno.h>
 #include <string.h>
 #include "../constant.h"
+#include "linked_list.h"
 
-typedef struct ProcUsage{
-    long int pid;
-    float cpu_usage;
-}ProcUsage;
 
-typedef struct RankMapItem {
-    int key;              //PID
-    char** info;          //array string which contains process data
-    int n_str;
-    int r_idx;            //position in rank_idx global array
-} RankMapItem;
+/*type assigned from man 5 proc section /proc/[pid]/stat*/
+typedef struct ProcData{
+    pid_t                   pid;
+    char*                   comm;
+    char*                   state;
+    long unsigned           utime;
+    long unsigned           stime;
+    long                    num_threads;
+    long long unsigned      starttime;
+    long unsigned           vsize;
+} ProcData;
 
-typedef struct RankMap {
-    RankMapItem** items;      //pointer to pointer to map items
-    int size;             //map size
-} RankMap;
+
+typedef struct ProcListItem{
+  ListItem list;
+  ProcData *data;
+} ProcListItem;
 
 
 long* getSystemStat(FILE* fp);
