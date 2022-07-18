@@ -213,15 +213,27 @@ void getAllProcData(ListHead* head){
     while (dir_data) {
         if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0){ // IF IS A PID DIRECTORY
             
-            int lenghtPid = (int) strlen(dir_data->d_name);
-            char formattedPath[lenghtPid+12];
-
-            strcpy(formattedPath, "/proc/");
-            strcat(formattedPath, dir_data->d_name);
-            strcat(formattedPath, "/stat");
+          
             //Creiamo list item con i campi di /proc/[pid]/stat
 
             ProcListItem* item = (ProcListItem*) malloc(sizeof(ProcListItem));
+                item->list.prev = 0;
+                item->list.next = 0;
+                
+                int lenghtPid = (int) strlen(dir_data->d_name);
+                char formattedPath[lenghtPid+12];
+
+                strcpy(formattedPath, "/proc/");
+                strcat(formattedPath, dir_data->d_name);
+                strcat(formattedPath, "/stat");
+
+                FILE* fp = fopen(formattedPath, "r");
+
+                if(!fp){ printf("Error while opening /proc/stat file: %s\n", strerror(errno)); exit(EXIT_FAILURE); }
+                
+                fscanf(fp, "%*d (%[^\t\n()]) %*c %*d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %lu %lu %ld %ld");
+                
+                fclose(fp);
 
             List_insert(head, head->last, item );
 
