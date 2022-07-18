@@ -35,7 +35,7 @@
     /* *[BEGIN] PROC STAT CONSTANTS */
     static const char* PROC_STATS_HEADERS[] = {
         "pid",
-        "name",
+        "comm",
         "state",
         "utime",
         "stime",
@@ -45,15 +45,15 @@
     };
 
     static const int PROC_STAT_OFFSET[] = {
+        0,
         1,
         2,
-        3,
+        13,
         14,
-        15,
-        20,
-        22,
-        23
-    }
+        19,
+        21,
+        22
+    };
     
     #define NUM_PROC_STATS sizeof(PROC_STATS_HEADERS)/sizeof(char*)
 

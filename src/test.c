@@ -1,5 +1,6 @@
 #include "./parser/parser.h"
 #include "util.h"
+
  
 /*
     descr:  Call this function in order to test the system stat crawling functionality.  
@@ -12,7 +13,7 @@ void testSysStat(){
     FILE* fp = fopen(SYS_STATS_PATH, "r");
 
     if(!fp){
-        printf("Error while opening /proc/stat file: %d\n", strerror(errno));
+        printf("Error while opening /proc/stat file: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -22,7 +23,7 @@ void testSysStat(){
         TODO: add more tests.
     */
     //TESTING
-    for(int i =0 ; i <  NUM_SYS_STATS; i++)
+    for(int i = 0 ; i <  NUM_SYS_STATS; i++)
         printf("%s : %d \n",SYS_STATS_HEADERS[i],(int) sys_stats_values[i]);
     
 
@@ -39,15 +40,20 @@ void testSysStat(){
 */
 void testCountDir(){
     //TODO: add more tests.
-    printf("[TEST]: I found %d directories in this path : %s \n",countDir("/proc"),"/proc" );
+    printf("[TEST]: I found %d directories in this path : %s \n",countDir("./"),"./" );
     return;
 }
 
+/*
+    CMD: make test
+*/
 int main(int argc, char const *argv[]){
     
     printf("Start testing !\n");
 
-    //testCountDir();
+    testSysStat();
+    testCountDir();
+
 
     printf("End testing !\n");
     

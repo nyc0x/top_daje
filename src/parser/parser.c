@@ -1,13 +1,13 @@
 #include "parser.h"
-
+#include "map.h"
 
 /*
     descr:  This function evaluates a string representing an header from /proc/stat file 
             and return a corresponding non negative integer (see constants.h)
     args:   [char* ] {token} that we want to validate.
     retval: 
-            1  {token} is valid and it's equal to "cpu"
-            0  {token} is valid and it's NOT equal to "cpu"
+            1  {token} is valid and it's NOT equal to "cpu"
+            0  {token} is valid and it's equal to "cpu"
             -1 {token} is not valid.
     author: [MZ]
 */
@@ -59,7 +59,7 @@ long* getSystemStat(FILE* fp){
                     sys_stats_values[sys_idx] = atoi(token); //TODO: add error handling atoi.
                     sys_idx++;
                 }else{ //IF it's cpu header.
-                    if(pos == 1 || pos == 3 || pos == 4 ){
+                    if(pos == 1 || pos == 3 || pos == 4 ){ //TODO: add constants to fixed positions
                         sys_stats_values[sys_idx] = (long) atoi(token);
                         sys_idx++;
                     }
@@ -80,31 +80,61 @@ long* getSystemStat(FILE* fp){
 
 
 /*
-    TODO: CONTINUE HERE.
     descr: 
     args:   
     retval: 
-    author: [MZ] [NDP] 
+    author: [MZ] 
 */
-long* getProcessStat(const char* pid ){
-    char* path = "/proc/";
-    FILE* fp = fopen(strcat(path, strcat(pid,"/stat")), "r");
+int isInValidOffset(int idx){
+    for(int i = 0; i < NUM_PROC_STATS ;i++)
+        if(idx == PROC_STAT_OFFSET[i])
+            return 0;
+    return -1;
+}
 
+/*
+    descr: 
+    args:   
+    retval: 
+    author: [MZ] 
+*/
+char** getProcessStat(char* pid ){
+    
+    int lenghtPid = (int)strlen(pid);
+    
+    char formattedPath[lenghtPid+12];
+
+    strcpy(formattedPath, "/proc/");
+    strcat(formattedPath, pid);
+    strcat(formattedPath, "/stat");
+
+    FILE* fp = fopen(formattedPath, "r");
+    
     if(!fp){
-        printf("Error while opening /proc/stat file: %d\n", strerror(errno));
+        printf("Error while opening /proc/stat file: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
-    long* proc_stats_values = (long*)calloc(NUM_SYS_STATS,sizeof(long));
+    char** proc_stats_values = (char**)malloc(NUM_SYS_STATS*sizeof(char*));
 
-    ssize_t n;  
-    char* line = getline(&line, &n , fp);
+    char* line;
+    ssize_t n = getline(&line, &n , fp);
     char* token;
+    
+    puts("DYBALA ALLA ROMA");
 
-    if(line != -1){
+    if(n != -1){  /* from kernel we know it's just a one line file.  */
         token = strtok(line, " ");
+        int i = 0,proc_idx = 0;
         while(token){
-            //TODO: CONTINUE HERE.
+            
+            if(!isInValidOffset(i)){
+                int length = (int) strlen(token);
+                proc_stats_values[proc_idx] = (char*)malloc(sizeof(char)*(length+1));
+                strcpy(proc_stats_values[proc_idx], token);
+                proc_idx++;
+            }
+            i++;
             token = strtok(0, " ");
         }
     }
@@ -114,10 +144,46 @@ long* getProcessStat(const char* pid ){
 }
 
 
+/*
+    descr: 
+    args:   
+    retval: 
+    author: [NDP] 
+*/
+char** getAllPids(){
+    
+    return NULL;
+}
+
+/*
+    descr: 
+    args:   
+    retval: 
+    author: [NDP] 
+*/
+Map* populateMapProcesses(){
+    //crei una mappa "map"
+    
+    //for pid in pids
+        //values[i] = getProcessStat(pid);
+        //"map".addItem(pid, values[i]).
+    
+    //return Map
+    return NULL;
+}
+
+
 //TODO: delete main after implementing get pid stats
-int main(int argc, char const *argv[])
-{
-    /* code */
+int main(int argc, char const *argv[]){
+    
+    //Testing
+    char** a = getProcessStat("102");
+    for(int i = 0 ; i < NUM_PROC_STATS; i++){
+        printf("%s : %s \n", PROC_STATS_HEADERS[i], a[i]);
+    }
+
+    
+    
     return 0;
 }
 

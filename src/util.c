@@ -28,7 +28,7 @@ long getFileLength(FILE* fp ){
     author: [NDP] 
 */
 int countDir(const char* path ){
-    if(!path) printf("Error \n", strerror(errno)); //TODO: add better error handling
+    if(!path) printf("Error %s\n", strerror(errno)); //TODO: add better error handling
     
     DIR* dir_p = opendir(path);
     
