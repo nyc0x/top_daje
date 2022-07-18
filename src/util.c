@@ -51,7 +51,12 @@ long int countDir(const char* path){
     return num_dir;
 }
 
-
+/*
+    descr: 
+    args:   
+    retval: 
+    author: [NDP] 
+*/
 long int countProcs(const char* path){
     if(!path) printf("Error %s\n", strerror(errno)); //TODO: add better error handling
     

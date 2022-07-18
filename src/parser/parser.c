@@ -93,14 +93,15 @@ int isInValidOffset(int idx){
     return -1;
 }
 
+
+
 /*
     descr: 
     args:   
     retval: 
     author: [MZ] 
 */
-char** getProcessStat(char* pid ){
-    
+char** getProcessStat(char* pid ,ProcUsage** rankProcUsage, int index){
     int lenghtPid = (int)strlen(pid);
     
     char formattedPath[lenghtPid+12];
@@ -108,39 +109,60 @@ char** getProcessStat(char* pid ){
     strcpy(formattedPath, "/proc/");
     strcat(formattedPath, pid);
     strcat(formattedPath, "/stat");
-
+    
     FILE* fp = fopen(formattedPath, "r");
     
-    if(!fp){
+    if(fp == NULL){
         printf("Error while opening /proc/stat file: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
     char** proc_stats_values = (char**)malloc(NUM_SYS_STATS*sizeof(char*));
 
-    char* line;
-    ssize_t n = getline(&line, &n , fp);
+    char* line = NULL;
+    ssize_t val = 1;
+    ssize_t n = getline(&line, &val , fp);
     char* token;
     
     if(n != -1){  /* from kernel we know it's just a one line file.  */
+        
         token = strtok(line, " ");
+        
         int i = 0,proc_idx = 0;
-        while(token){
-            
+        while(token != NULL){
             if(!isInValidOffset(i)){
                 int length = (int) strlen(token);
+                
                 proc_stats_values[proc_idx] = (char*)malloc(sizeof(char)*(length+1));
                 strcpy(proc_stats_values[proc_idx], token);
+                /*for(int j = 0; j < length; j++){
+                    proc_stats_values[proc_idx][j] = token[j]; 
+                }
+                proc_stats_values[proc_idx][length] = '\0';
+                */
+                printf("token %s : proc_stats : %s \n", token, proc_stats_values[proc_idx]);
                 proc_idx++;
             }
+            
             i++;
             token = strtok(0, " ");
+            
         }
     }
+    //TODO: crea init() for ProcUsage and insert functions.
+    ProcUsage* item = (ProcUsage*) malloc(sizeof(ProcUsage));
+    item->pid = atoi(pid);
+    item->cpu_usage = (float) atoi(proc_stats_values[3]); //TODO: change this value to the correct ones. Leave it as it is just for testing.
+    //Append to global rankProtUsage array.
+    rankProcUsage[index] = item;
     
+    puts("DYBALA");
+
     fclose(fp);
     return proc_stats_values;
 }
+
+
 
 
 /*
@@ -171,42 +193,55 @@ void getAllPids(char** buf){
     return;
 }
 
-/*
-    descr: 
-    args:   
-    retval: 
-    author: [NDP] 
-*/
-/*Map* populateMapProcesses(){
-    //crei una mappa "map"
-    
-    //for pid in pids
-        //values[i] = getProcessStat(pid);
-        //"map".addItem(pid, values[i]).
-    
-    //return Map
-    return NULL;
-}*/
 
 
 //TODO: delete main after implementing get pid stats
 int main(int argc, char const *argv[]){
     
     //Testing
-    char** a = getProcessStat("102");
+  /*  
+    char** a = getProcessStat("4");
     for(int i = 0 ; i < NUM_PROC_STATS; i++){
         printf("%s : %s \n", PROC_STATS_HEADERS[i], a[i]);
     }
-
+*/
+    //TODO: make init function for rankProcUsage.
     long int n_procs = countProcs(PROC_PATH);
-    //Map* m = createMap(n_procs);
+    //printf("%ld \n" , n_procs);
+
+    ProcUsage** rankProcUsage = (ProcUsage**) malloc(sizeof(ProcUsage*)*n_procs);
 
     char** pids = (char**)malloc(sizeof(char*)*n_procs);
     getAllPids(pids);
+      
+    char** arrayData[n_procs];
+    //Iterazione 0 costo O(n_procs)
+  
+    for(int i = 0; i < n_procs; i++){
+        arrayData[i] = getProcessStat(pids[i], rankProcUsage, i);
+        for(int j = 0; j < NUM_PROC_STATS; j++)
+            printf("%s : ",arrayData[i][j]);
+        printf("\n");   
+    }
 
-    for (int i=0; i<n_procs; i++)
+    /*
+    //Iterazione 1 costo O(n_procs)
+    RankMap* localMap = (RankMap*) malloc(sizeof(RankMap));
+    localMap->size = n_procs;    
+    localMap->items = (RankMapItem**) malloc(sizeof(RankMapItem*)*n_procs);
+
+    for(int i =0 ; i < n_procs; i++){
+        RankMapItem* item = (RankMapItem*) malloc(sizeof(RankMapItem));
+
+    }
+*/
+    //for pid in pids:
+        //char** arr = getProcessStat(pid)
+
+    //TESTING
+    /*for (int i=0; i<n_procs; i++)
         printf("pid[%s]\n", pids[i]);    
-    
+    */
     return 0;
 }
 
