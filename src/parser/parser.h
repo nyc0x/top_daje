@@ -3,14 +3,14 @@
 #include <errno.h>
 #include <string.h>
 #include "../constant.h"
-#include "linked_list.h"
+#include "../data_structures/linked_list.h"
 
 
 /*type assigned from man 5 proc section /proc/[pid]/stat*/
 typedef struct ProcData{
     pid_t                   pid;
     char*                   comm;
-    char*                   state;
+    char                    state;
     long unsigned           utime;
     long unsigned           stime;
     long                    num_threads;
