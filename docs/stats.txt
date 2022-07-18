@@ -16,6 +16,7 @@ Stats tracked of every process /proc/[PID]/status
 
 Stats tracked of every process /proc/[PID]/stat
 *   (1) pid
+*   (2) name
 *   (3) state
 *   (14) utime       Amount of time that this process has been scheduled in user mode, measured in clock  ticks  (divide  by  sysconf(_SC_CLK_TCK)).
                         This  includes guest time, guest_time (time spent running a virtual CPU, see below), so that applications that are not aware of
@@ -61,10 +62,10 @@ Stats tracked of every process /proc/uptime:
 
 
 SYS Header HYP:
- ________________________________________________________________________
-|       |       |           |           |               |                |
-|#pages | #ctxt | boot_time | processes | procs_running | procs_blocked. |
-|_______|_______|___________|__________ |_______________|________________|
+ _________________________________________________________________
+|       |           |           |               |                |
+| #ctxt | boot_time | processes | procs_running | procs_blocked. |
+|_______|___________|___________|_______________|________________|
 
 
 HEADER Hypothesis: 

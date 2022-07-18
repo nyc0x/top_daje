@@ -1,4 +1,9 @@
-#pragma once
 
-//utile per debug e fill delle define associate ai segnali da lanciare nel gestore dei processi.
-void listAllSignals(char** buf, int* arr);
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <dirent.h>
+#include <errno.h>
+
+int countDir(const char* path );
+long getFileLength(FILE* fp );

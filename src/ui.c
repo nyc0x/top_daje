@@ -7,7 +7,7 @@
 
 ITEM ** getItems(Map** map){
     MapItem* values = getItemsList(map);
-    ITEM** items = (ITEM **) calloc(map->)
+    ITEM** items = (ITEM **) calloc(map->m)
     return items;
 }
 
