@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "../data_structures/proc_list_item.h"
 
 
 /*
@@ -52,7 +53,7 @@ long* getSystemStat(FILE* fp){
     while((bytes_read = getline(&line, &n , fp)) != -1){
         token = strtok(line, " ");
         int type = isValidHeader(token);
-        if( type >= 0){
+        if (type >= 0){
             int pos = 1;
             token = strtok(0, " ");
             while(token){
@@ -102,83 +103,73 @@ void getAllProcData(ListHead* head){
             //Creiamo list item con i campi di /proc/[pid]/stat
 
             ProcListItem* item = (ProcListItem*) malloc(sizeof(ProcListItem));
-                item->list.prev = 0;
-                item->list.next = 0;
-                
-                int lenghtPid = (int) strlen(dir_data->d_name);
-                char formattedPath[lenghtPid+12];
+            item->list.prev = 0;
+            item->list.next = 0;
+            
+            int length = (int)(strlen(dir_data->d_name)+strlen(PROC_PATH)+strlen(STAT_PATH));
+            char formattedPath[length];
 
-                strcpy(formattedPath, "/proc/");
-                strcat(formattedPath, dir_data->d_name);
-                strcat(formattedPath, "/stat");
+            strcpy(formattedPath, PROC_PATH);
+            strcat(formattedPath, dir_data->d_name);
+            strcat(formattedPath, STAT_PATH);
 
-                FILE* fp = fopen(formattedPath, "r");
+            FILE* fp = fopen(formattedPath, "r");
 
-                if(!fp){ printf("Error while opening /proc/stat file: %s\n", strerror(errno)); exit(EXIT_FAILURE); }
+            if(!fp){ printf("Error while opening /proc/stat file: %s\n", strerror(errno)); exit(EXIT_FAILURE); }
           
-                pid_t pid;         
-                char* comm;
-                char state;
-                long unsigned utime;
-                long unsigned stime;
-                long unsigned vsize;              
-                long num_threads;
-                long long unsigned starttime;
+            pid_t pid;         
+            char* comm;
+            char state;
+            long unsigned utime, stime, vsize;            
+            long num_threads;
+            long long unsigned starttime;
              
-                char* line = NULL;
-                size_t n = 1;
+            char* line = NULL;
+            size_t n = 1;
 
-                size_t bytes_read = getline(&line,&n,fp);
-                if(bytes_read != -1){
-                    if(line){
-                        int token_num = 1;
-                        char* token = strtok(line, " ");
-                        while (token){
-                            switch (token_num){
-                                case 1:
-                                    pid = atoi(token);
-                                    break;
-                                case 2:
-                                    comm = token; //TODO: add function to strip the parenthesis.
-                                    break;
-                                case 3:
-                                    state = token[0];
-                                    break;
-                                case 14 :
-                                    utime = (long unsigned) atol(token);
-                                    break;
-                                case 15:
-                                    stime = (long unsigned) atol(token);
-                                    break;
-                                case 20:
-                                    vsize = (long unsigned) atol(token);
-                                    break;
-                                case 22:
-                                    num_threads = atol(token);
-                                    break;
-                                case 23:
-                                    starttime = (long long unsigned) atoll(token);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            token_num++;
-                            token = strtok(0, " ");
+            size_t bytes_read = getline(&line,&n,fp);
+            if(bytes_read != -1){
+                if(line){
+                    int token_num = 1;
+                    char* token = strtok(line, " ");
+                    while (token){
+                        switch (token_num){
+                            case 1:
+                                pid = atoi(token);
+                                break;
+                            case 2:
+                                comm = token; //TODO: add function to strip the parenthesis.
+                                break;
+                            case 3:
+                                state = token[0];
+                                break;
+                            case 14 :
+                                utime = (long unsigned) atol(token);
+                                break;
+                            case 15:
+                                stime = (long unsigned) atol(token);
+                                break;
+                            case 20:
+                                vsize = (long unsigned) atol(token);
+                                break;
+                            case 22:
+                                num_threads = atol(token);
+                                break;
+                            case 23:
+                                starttime = (long long unsigned) atoll(token);
+                                break;
+                            default:
+                                break;
                         }
+                        token_num++;
+                        token = strtok(0, " ");
+                    }
                         
                     }
                 }
                 
                 item->data = (ProcData*) malloc(sizeof(ProcData));
-                item->data->pid =  pid;
-                item->data->comm = comm;
-                item->data->state = state;
-                item->data->utime = utime;
-                item->data->stime = stime;
-                item->data->vsize = vsize;
-                item->data->num_threads = num_threads;
-                item->data->starttime =  starttime;
-
+                fillData(item->data, pid, comm, state, utime, stime, vsize, num_threads, starttime);
 
                 fclose(fp);
                 
@@ -194,20 +185,19 @@ void getAllProcData(ListHead* head){
 }
 
 void procData_print(ProcData* data) {
-    printf("pid: %d\n, name: %s\n, state: %c\n, ", data->pid, data->comm, data->state);
-    printf("user_time: %lu\n, sys_time: %lu\n, n_threads: %ld\n, ", data->utime, data->stime, data->num_threads);
-    printf("start_time: %llu\n, virtual_mem_size: %lu\n", data->starttime, data->vsize);
+    printf("\n[pid: %d]\n- name: %s\n- state: %c\n- ", data->pid, data->comm, data->state);
+    printf("user_time: %lu\n- sys_time: %lu\n- n_threads: %ld\n- ", data->utime, data->stime, data->num_threads);
+    printf("start_time: %llu\n- virtual_mem_size: %lu\n", data->starttime, data->vsize);
 }
 
 void procListItem_print(ListHead* head){
   ListItem* aux=head->first;
-  printf("[");
   while(aux){
     ProcListItem* element = (ProcListItem*) aux;
     procData_print(element->data);
     aux=aux->next;
   }
-  printf("]\n");
+  printf("\n");
 }
 
 

@@ -4,6 +4,7 @@
     /* *[BEGIN] SYS STAT CONSTANTS */
     #define SYS_STATS_PATH "/proc/stat" 
     #define PROC_PATH "/proc/"
+    #define STAT_PATH "/stat"
 
 
     static const char* KEY_WORDS[] = {
