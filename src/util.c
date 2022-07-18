@@ -8,7 +8,7 @@
             - -1 if error on fp 
     author:
 */
-long getFileLength(FILE* fp ){
+long getFileLength(FILE* fp){
     long ret = -1;
     if(fp){
         if(fseek(fp,0,SEEK_END) < 0 ) exit(EXIT_FAILURE); /*TODO: add better error handling ! REMOVE exit(...) call*/
@@ -110,3 +110,5 @@ void getAllPids(char** buf){
     
     return;
 }
+
+
