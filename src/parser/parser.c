@@ -193,10 +193,10 @@ void getAllPids(char** buf){
 int main(int argc, char const *argv[]){
     
     //Testing
-    /*char** a = getProcessStat("102");
+    char** a = getProcessStat("102");
     for(int i = 0 ; i < NUM_PROC_STATS; i++){
         printf("%s : %s \n", PROC_STATS_HEADERS[i], a[i]);
-    }*/
+    }
 
     int n_procs = countDir(PROC_PATH);
     //Map* m = createMap(n_procs);
