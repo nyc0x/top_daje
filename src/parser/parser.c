@@ -81,9 +81,13 @@ long* getSystemStat(FILE* fp){
 
 
 /*
-    descr: 
-    args:   
-    retval: 
+    descr:  This function open the PROC_PATH directory and iteratively reads its pid-named directories name
+            (which corresponds to the pid number), then opens the /proc/[#pid]/stat file containing all process'
+            info. These info are read and stored in the respective variables which will be used to fill the "data"
+            field of the previously allocated ProcListItem*.
+            At last, this ProcListItem* will be appended to the end of the ListHead* item given
+    args:   a ListHead* item
+    retval: None
     author: [MZ] [NDP]
 */
 void getAllProcData(ListHead* head){

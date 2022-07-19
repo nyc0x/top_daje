@@ -4,7 +4,7 @@
 #define MAX_ELEM_SIZE 32
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-#define CTRLD 	4
+#define CTRL_D 	4
 
 char* procDataToString(ProcData* data){
     char* buf = (char*) calloc(MAX_ITEM_SIZE, sizeof(char));
@@ -222,7 +222,6 @@ char *choices[] = {
                         "Exit",
                         (char *)NULL,
                   };
-void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 
 int main(){
     

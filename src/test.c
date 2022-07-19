@@ -45,7 +45,13 @@ void testCountDir(){
     return;
 }
 
-
+/*
+    descr:  Test function which initialises a ListHead item, retrieves all processes' data
+            and then prints them in stdout
+    args:   None
+    retval: None
+    author: [NDP] 
+*/
 void testFillStatList(){
     ListHead head;    
     List_init(&head);

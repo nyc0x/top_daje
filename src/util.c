@@ -6,14 +6,14 @@
             NOTE that the file MUST be already opened! 
     retval: - #bytes of the file
             - -1 if error on fp 
-    author:
+    author: [NDP] [MZ]
 */
 long getFileLength(FILE* fp){
     long ret = -1;
-    if(fp){
-        if(fseek(fp,0,SEEK_END) < 0 ) exit(EXIT_FAILURE); /*TODO: add better error handling ! REMOVE exit(...) call*/
+    if (fp) {
+        if (fseek(fp,0,SEEK_END) < 0) exit(EXIT_FAILURE); /*TODO: add better error handling ! REMOVE exit(...) call*/
         ret = ftell(fp);
-        if(fseek(fp, 0,SEEK_SET) < 0 ) exit(EXIT_FAILURE);
+        if (fseek(fp, 0,SEEK_SET) < 0) exit(EXIT_FAILURE);
     }
     return ret;
 }
@@ -21,9 +21,9 @@ long getFileLength(FILE* fp){
 
 
 /*
-    descr:  This function return the number of directories inside a given path,
-             excludind the hidden (the ones with '.' at the beginning of their name ) and nested ones 
-    args:   [const char *] {path} valid absolute path where to count directories.
+    descr:  This function returns the number of directories inside a given path,
+            excluding the hidden (the ones with '.' at the beginning of their name) and nested ones 
+    args:   [const char*] {path} valid absolute path where to count directories.
     retval: Non negative integer matching the number of non hidden directories in path.
     author: [NDP] 
 */
@@ -52,9 +52,10 @@ long int countDir(const char* path){
 }
 
 /*
-    descr: 
-    args:   
-    retval: 
+    descr:  Works the same as countDir function except for the fact that this function 
+            does not include in its count non pid-named directories
+    args:   [const char*] {path} valid absolute path where to count directories.
+    retval: Non negative integer matching the number of pid-named directories in path.
     author: [NDP] 
 */
 long int countProcs(const char* path){
