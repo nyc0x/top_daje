@@ -23,7 +23,7 @@ void procDataToString(char* buf ,ProcData* data){
         offset += ret;
     }
    
-    ret = sprintf(elem, "%lu\t",data->utime); //Check man sprintf
+        ret = sprintf(elem, "%lu\t",data->utime); //Check man sprintf
     if(ret >= 0){
         memcpy(buf + offset, elem, ret); //append to total buffer
         memset(elem , 0 , ret);  //empty elem buffer
@@ -58,33 +58,37 @@ void procDataToString(char* buf ,ProcData* data){
         memcpy(buf + offset, elem, ret); //append to total buffer
         memset(elem , 0 , ret);  //empty elem buffer
         offset += ret;
-    
 
     buf[offset] = '\0'; 
     return ;
 }
 
 
+
 void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages);
 
 void printHeader();
+void printMenu(WINDOW* win, int rows_per_page, int margin_top);
+
+
 
 int main(){
 
 	int c;				
-    int n_choices, i, chosen=-1;
+    long long unsigned int n_choices, i;
 	
 	/* Initialize curses */
 	initscr();
-	
-    
+	    
     start_color();
-        cbreak();
-       noecho();
+    cbreak();
+    noecho();
 	keypad(stdscr, TRUE);
 	init_pair(1, COLOR_RED, COLOR_BLACK);
 	init_pair(2, COLOR_CYAN, COLOR_BLACK);
-            
+    
+    curs_set(0); //REMOVE Blinking cursor
+
     //PRENDO I DATI.
     ListHead head;    
     List_init(&head);
@@ -117,23 +121,27 @@ int main(){
 
     //height -2
   
-    int intervalLengt = height-5;
     int margin_top = 5;
     int margin_bottom = 5;
     int rows_per_page = height-margin_bottom-margin_top;
 
     int num_pages = n_choices/rows_per_page;
-    int highlight = 1; //START WITH ONE.
+    long long unsigned highlight = 1; //START WITH ONE.
     int page_number = 0;
     
 
     //PRINT HEADER
     printHeader(main);
-
+    printMenu(main, rows_per_page, margin_top);
     //-> page number starts from 1 to -> num_pages (index = i+rows_per_page*pageNumber)
     printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages);
     wrefresh(main);
     
+    long long unsigned idx;
+    char* pid;
+    long long unsigned pid_num;
+    int ret_val;
+
     box(main ,0 ,0);
 	while((c = wgetch(main)) != KEY_F(1)){
        
@@ -161,23 +169,54 @@ int main(){
                         highlight--;
                 }
                 break;
-            case 10: //ENTER KEY
-                chosen = highlight;
-                break;
+                //TODO: add listener to Npage e PPage
             case KEY_NPAGE:
                 break;
             case KEY_PPAGE:
+                break;
+            case KEY_F(5): //Kill
+
+                idx = highlight-1+(page_number-1)*rows_per_page;
+                mvwprintw(main,rows_per_page+margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, n_choices);
+                    
+                if(idx < n_choices){
+                    pid = strtok(choices[idx], "\t");
+                    
+                    if(pid){
+                        //mvwprintw(main,rows_per_page+margin_top+4,2,"pid before atoi: %llu\n",pid_num);
+                        pid_num = atoi(pid);
+                        if(pid_num ){
+                            ret_val = kill((pid_t)pid_num, 9);
+                            if(ret_val < 0 ){
+                                mvwprintw(main,rows_per_page+margin_top+4,2,"Killed failed for pid : %llu\n",pid_num);    
+                            }else{
+                                mvwprintw(main,rows_per_page+margin_top+4,2,"Kill effettuata per process: %llu\n",pid_num);
+                            }
+                        }else{
+                            mvwprintw(main,rows_per_page+margin_top+4,2,"Kill non effettuata: \n");    
+                        }
+                        
+                    }
+                }
+                break;
+            case KEY_F(6)://Pause
+                
+                break;
+            case KEY_F(7): //Suspend
+                
+                break;
+            case KEY_F(8): //Resume
+               
                 break;
             default:
                 break;
         }
        
         printPage(main ,choices,highlight,rows_per_page , page_number, margin_top, margin_bottom, num_pages);
+        //mvwprintw(main,rows_per_page+margin_top+3,2,"page_number : %d , rows_per_page : %d highlight : %d\n",page_number, rows_per_page, highlight); //DEBUG
+                
         wrefresh(main);
-        if(chosen > 0)
-            break;
-            wrefresh(main);
-	}	
+    }	
 
     endwin();
     return 0;
@@ -186,8 +225,18 @@ int main(){
 void printHeader(WINDOW* win){
     if(!win) win = stdscr; 
 
+    //TODO: replace 4 with #define "some costants"
     mvwprintw(win,4,2,"PID:\tUTIME\tSTIME\tN_THREADS\t\t\tSTART_TIME\t\tV_SIZE\tCOMM\n");
     
+    return;
+}
+
+void printMenu(WINDOW* win, int rows_per_page, int margin_top){
+    if(!win) win = stdscr;
+
+    mvwprintw(win,rows_per_page+margin_top+1,2,"List of current active processes: \n");
+    mvwprintw(win,rows_per_page+margin_top+2,2,"[F1] <-> Exit | [F5]<-> Kill | [F6] <--> Pause | [F7] Suspend | [F8] Resume\n");
+
     return;
 }
 
@@ -196,6 +245,7 @@ void printSysStat(){
     return;
 }
 
+//index = i+rows_per_page*pageNumber
 void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages){
     
     if(!win) win = stdscr; 
