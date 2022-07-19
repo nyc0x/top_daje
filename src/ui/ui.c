@@ -65,7 +65,7 @@ void procDataToString(char* buf ,ProcData* data){
 }
 
 
-void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number);
+void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages);
 
 int main(){
 
@@ -109,14 +109,16 @@ int main(){
     //PRINTO I DATI
     int height, width;
     getmaxyx(stdscr,height, width);
-
-    WINDOW* main = newwin(height*0.9 , width , 3, 2);
+    height = height*0.9;
+    WINDOW* main = newwin(height , width , 3, 2);
     keypad(main, TRUE);
 
     //height -2
   
     int intervalLengt = height-5;
-    int rows_per_page = height-7;
+    int margin_top = 5;
+    int margin_bottom = 5;
+    int rows_per_page = height-margin_bottom-margin_top;
 
     int num_pages = n_choices/rows_per_page;
     int highlight = 1; //START WITH ONE.
@@ -125,22 +127,22 @@ int main(){
 
     //-> page number starts from 1 to -> num_pages (index = i+rows_per_page*pageNumber)
         
-    printPage(main ,choices,highlight,rows_per_page, page_number);
+    printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages);
     wrefresh(main);
     
     box(main ,0 ,0);
-    //GESTISCO INPUT
 	while((c = wgetch(main)) != KEY_F(1)){
        
         switch(c){
             case KEY_DOWN:
                 if(highlight == rows_per_page){
-                    highlight = 1;
-                    page_number++;
-                }
-                else{
+                    if (page_number < num_pages){
+                        highlight = 1;      
+                        page_number++;
+                    }
+                }else{
                     if(highlight < rows_per_page)
-                    ++highlight;
+                        ++highlight;
                 } 
                 break;
             case KEY_UP:
@@ -165,8 +167,8 @@ int main(){
             default:
                 break;
         }
-        
-        printPage(main ,choices,highlight,rows_per_page , page_number);
+       
+        printPage(main ,choices,highlight,rows_per_page , page_number, margin_top, margin_bottom, num_pages);
         wrefresh(main);
         if(chosen > 0)
             break;
@@ -177,22 +179,38 @@ int main(){
     return 0;
 }
 
+void printHeader(){
 
-void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number){
+}
+
+//TODO: per dopo.
+void printSysStat(){
+    return;
+}
+
+void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages){
     
     if(!win) win = stdscr; 
     
-    int i = 0;
-    while(i < rows_per_page){
-        if(highlight == i+1){
-            wattron(win, A_REVERSE); 
-            mvwprintw(win,i+1,2,"%s\n", choices[i+rows_per_page*page_number]);
+    int j = 0;
+    while(j < rows_per_page){
+        if(highlight == j+1){
+            wattron(win, A_REVERSE);
+            if(page_number == num_pages){
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+            }else{
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number)]);
+            }
             wattroff( win, A_REVERSE);
         }else{
-            mvwprintw(win,i+1,2,"%s\n", choices[i+rows_per_page*page_number]);
+            if(page_number == num_pages){
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+            }else{
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number)]);
+            }
         }
-        i++;
+        j++;
     }
 
-
+    return;
 }
