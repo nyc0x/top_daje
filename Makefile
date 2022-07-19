@@ -13,4 +13,4 @@ ui: $(ARGS_UI)
 	$(CC) -o $(BIN_UI) $(ARGS_UI) $(FLAGS_UI)
 
 clean:
-	rm -rf $(BIN_MAIN) $(BIN_UI)
+	rm -rf $(BIN_MAIN) $(BIN_UI) && clear
