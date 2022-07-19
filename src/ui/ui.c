@@ -35,13 +35,13 @@ void procDataToString(char* buf ,ProcData* data){
         memset(elem , 0 , ret);  //empty elem buffer
         offset += ret;
     }
-    ret = sprintf(elem, "%ld\t",data->num_threads); //Check man sprintf
+    ret = sprintf(elem, "%ld\t\t\t\t",data->num_threads); //Check man sprintf
     if(ret >= 0){
         memcpy(buf + offset, elem, ret); //append to total buffer
         memset(elem , 0 , ret);  //empty elem buffer
         offset += ret;
     }
-    ret = sprintf(elem, "%llu\t\t ",data->starttime); //Check man sprintf
+    ret = sprintf(elem, "%llu\t\t\t ",data->starttime); //Check man sprintf
     if(ret >= 0){
         memcpy(buf + offset, elem, ret); //append to total buffer
         memset(elem , 0 , ret);  //empty elem buffer
@@ -66,6 +66,8 @@ void procDataToString(char* buf ,ProcData* data){
 
 
 void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages);
+
+void printHeader();
 
 int main(){
 
@@ -110,7 +112,7 @@ int main(){
     int height, width;
     getmaxyx(stdscr,height, width);
     height = height*0.9;
-    WINDOW* main = newwin(height , width , 3, 2);
+    WINDOW* main = newwin(height , width , 0, 0);
     keypad(main, TRUE);
 
     //height -2
@@ -125,8 +127,10 @@ int main(){
     int page_number = 0;
     
 
+    //PRINT HEADER
+    printHeader(main);
+
     //-> page number starts from 1 to -> num_pages (index = i+rows_per_page*pageNumber)
-        
     printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages);
     wrefresh(main);
     
@@ -179,8 +183,12 @@ int main(){
     return 0;
 }
 
-void printHeader(){
+void printHeader(WINDOW* win){
+    if(!win) win = stdscr; 
 
+    mvwprintw(win,4,2,"PID:\tUTIME\tSTIME\tN_THREADS\t\t\tSTART_TIME\t\tV_SIZE\tCOMM\n");
+    
+    return;
 }
 
 //TODO: per dopo.
