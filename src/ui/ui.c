@@ -12,45 +12,65 @@
     retval: 
     author: [MZ] [NDP] 
 */
-char* procDataToString(ProcData* data){
-    char* buf = (char*) calloc(MAX_ITEM_SIZE, sizeof(char));
+void procDataToString(char* buf ,ProcData* data){
     char* elem = (char*) malloc(sizeof(char*)*MAX_ELEM_SIZE);
     
     int offset = 0;
-    int ret = sprintf(elem, "%d",(int)data->pid); //Check man sprintf
+    int ret = sprintf(elem, "%d\t",(int)data->pid); //Check man sprintf
     if(ret >= 0){
         memcpy(buf + offset, elem, ret); //append to total buffer
         memset(elem , 0 , ret);  //empty elem buffer
         offset += ret;
     }
+   
+    ret = sprintf(elem, "%lu\t",data->utime); //Check man sprintf
+    if(ret >= 0){
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    }
+    ret = sprintf(elem, "%lu\t",data->stime); //Check man sprintf
+    if(ret >= 0){
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    }
+    ret = sprintf(elem, "%ld\t",data->num_threads); //Check man sprintf
+    if(ret >= 0){
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    }
+    ret = sprintf(elem, "%llu\t\t ",data->starttime); //Check man sprintf
+    if(ret >= 0){
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    }
+    ret = sprintf(elem, "%lu\t",data->vsize); //Check man sprintf
+    if(ret >= 0){
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    }
+    ret = strlen(data->comm);
+        memcpy(elem, data->comm ,ret );
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    
 
     buf[offset] = '\0'; 
-    return buf;
+    return ;
 }
 
 
-char *choices[] = {
-                        "Choice 1",
-                        "Choice 2",
-                        "Choice 3",
-                        "Choice 4",
-			"Choice 5",
-			"Choice 6",
-			"Choice 7",
-			"Choice 8",
-			"Choice 9",
-			"Choice 10",
-                        "Exit",
-                        (char *)NULL,
-                  };
+void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number);
 
 int main(){
-   
-    ITEM **my_items;
+
 	int c;				
-	MENU *my_menu;
-        WINDOW *my_menu_win;
-        int n_choices, i;
+    int n_choices, i, chosen=-1;
 	
 	/* Initialize curses */
 	initscr();
@@ -63,114 +83,116 @@ int main(){
 	init_pair(1, COLOR_RED, COLOR_BLACK);
 	init_pair(2, COLOR_CYAN, COLOR_BLACK);
             
-	/* Create items */
+    //PRENDO I DATI.
+    ListHead head;    
+    List_init(&head);
+    getAllProcData(&head);
+
+    n_choices = head.size;
+    ListItem* it = head.first;
+    
+    //Popoliamo choices.
+    i = 0;
+    char** choices = (char**) malloc(sizeof(char*)*n_choices);
+    while(it && i < n_choices ){
+        ProcListItem* elem = (ProcListItem*) it;
+        ProcData* pd = elem->data;
+
+        choices[i] = (char*) malloc(sizeof(char)*100); 
+        
+        procDataToString(choices[i], pd);    
+
+        i++;
+        it=it->next;
+    }
+
+    //PRINTO I DATI
+    int height, width;
+    getmaxyx(stdscr,height, width);
+
+    WINDOW* main = newwin(height*0.9 , width , 3, 2);
+    keypad(main, TRUE);
+
+    //height -2
   
-        ListHead head;    
-        List_init(&head);
-        getAllProcData(&head);
+    int intervalLengt = height-5;
+    int rows_per_page = height-7;
 
-        n_choices = head.size;
+    int num_pages = n_choices/rows_per_page;
+    int highlight = 1; //START WITH ONE.
+    int page_number = 0;
+    
 
-        ListItem* it = head.first;
-        int counter = 0;
-        char** arrNames = (char**) malloc(sizeof(char*)*n_choices);
-        while(it){
-            ProcListItem* elem = (ProcListItem*) it;
-            ProcData* pd = elem->data;
-            arrNames[counter]= procDataToString(pd);    
-            counter++;
-            it=it->next;
-        }
-
-        for(int i = 0; i < n_choices; i++){
-            my_items[i] = new_item(arrNames[i],"");
+    //-> page number starts from 1 to -> num_pages (index = i+rows_per_page*pageNumber)
+        
+    printPage(main ,choices,highlight,rows_per_page, page_number);
+    wrefresh(main);
+    
+    box(main ,0 ,0);
+    //GESTISCO INPUT
+	while((c = wgetch(main)) != KEY_F(1)){
+       
+        switch(c){
+            case KEY_DOWN:
+                if(highlight == rows_per_page){
+                    highlight = 1;
+                    page_number++;
+                }
+                else{
+                    if(highlight < rows_per_page)
+                    ++highlight;
+                } 
+                break;
+            case KEY_UP:
+                if(highlight == 1 && page_number == 0)
+                    highlight = 1;
+                else if(highlight == 1 && page_number > 0 ){
+                    page_number--;
+                    highlight = rows_per_page;
+                }
+                else{
+                    if(highlight > 1)
+                        highlight--;
+                }
+                break;
+            case 10: //ENTER KEY
+                chosen = highlight;
+                break;
+            case KEY_NPAGE:
+                break;
+            case KEY_PPAGE:
+                break;
+            default:
+                break;
         }
         
-        /*
-            n_choices = ARRAY_SIZE(choices);
-            my_items = (ITEM **)calloc(n_choices, sizeof(ITEM *));
-            for(i = 0; i < n_choices; ++i)
-                    my_items[i] = new_item(choices[i], choices[i]);
-        */
-	/* Crate menu */
-	my_menu = new_menu((ITEM **)my_items);
-
-	/* Create the window to be associated with the menu */
-        my_menu_win = newwin(10, 40, 4, 4);
-        keypad(my_menu_win, TRUE);
-     
-	/* Set main window and sub window */
-        set_menu_win(my_menu, my_menu_win);
-        set_menu_sub(my_menu, derwin(my_menu_win, 6, 38, 3, 1));
-	set_menu_format(my_menu, 5, 1);
-			
-	/* Set menu mark to the string " * " */
-        set_menu_mark(my_menu, " * ");
-
-	/* Print a border around the main window and print a title */
-        box(my_menu_win, 0, 0);
-	print_in_middle(my_menu_win, 1, 0, 40, "My Menu", COLOR_PAIR(1));
-	mvwaddch(my_menu_win, 2, 0, ACS_LTEE);
-	mvwhline(my_menu_win, 2, 1, ACS_HLINE, 38);
-	mvwaddch(my_menu_win, 2, 39, ACS_RTEE);
-        
-	/* Post the menu */
-	post_menu(my_menu);
-	wrefresh(my_menu_win);
-	
-	attron(COLOR_PAIR(2));
-	mvprintw(LINES - 2, 0, "Use PageUp and PageDown to scoll down or up a page of items");
-	mvprintw(LINES - 1, 0, "Arrow Keys to navigate (F1 to Exit)");
-	attroff(COLOR_PAIR(2));
-	refresh();
-
-	while((c = wgetch(my_menu_win)) != KEY_F(1)){
-            switch(c)
-	        {	case KEY_DOWN:
-				menu_driver(my_menu, REQ_DOWN_ITEM);
-				break;
-			case KEY_UP:
-				menu_driver(my_menu, REQ_UP_ITEM);
-				break;
-			case KEY_NPAGE:
-				menu_driver(my_menu, REQ_SCR_DPAGE);
-				break;
-			case KEY_PPAGE:
-				menu_driver(my_menu, REQ_SCR_UPAGE);
-				break;
-		}
-                wrefresh(my_menu_win);
+        printPage(main ,choices,highlight,rows_per_page , page_number);
+        wrefresh(main);
+        if(chosen > 0)
+            break;
+            wrefresh(main);
 	}	
 
-	/* Unpost and free all the memory taken up */
-        unpost_menu(my_menu);
-        free_menu(my_menu);
-        for(i = 0; i < n_choices; ++i)
-                free_item(my_items[i]);
-	endwin();
+    endwin();
     return 0;
 }
 
 
-void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color){
-    int length, x, y;
-	float temp;
+void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number){
+    
+    if(!win) win = stdscr; 
+    
+    int i = 0;
+    while(i < rows_per_page){
+        if(highlight == i+1){
+            wattron(win, A_REVERSE); 
+            mvwprintw(win,i+1,2,"%s\n", choices[i+rows_per_page*page_number]);
+            wattroff( win, A_REVERSE);
+        }else{
+            mvwprintw(win,i+1,2,"%s\n", choices[i+rows_per_page*page_number]);
+        }
+        i++;
+    }
 
-	if(win == NULL)
-		win = stdscr;
-	getyx(win, y, x);
-	if(startx != 0)
-		x = startx;
-	if(starty != 0)
-		y = starty;
-	if(width == 0)
-		width = 80;
 
-	length = strlen(string);
-	temp = (width - length)/ 2;
-	x = startx + (int)temp;
-	wattron(win, color);
-	mvwprintw(win, y, x, "%s", string);
-	wattroff(win, color);
-	refresh();
 }
