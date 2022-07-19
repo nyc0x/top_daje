@@ -1,4 +1,0 @@
-CC = gcc
-
-main:
-gcc -o ./bin/finalTest src/parser/parser.c src/data_structures/proc_list_item.c src/util.c src/data_structures/linked_list.c src/test.c
