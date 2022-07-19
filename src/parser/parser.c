@@ -14,11 +14,12 @@
 */
 int isValidHeader(char* token ){
     for(int i = 0; i < KEY_WORD_LEN; i++)
-        if (!strcmp(token,KEY_WORDS[i]))
+        if (!strcmp(token,KEY_WORDS[i])) {
             if(i)
                 return 1; 
             else
                 return 0; 
+        }
     return -1; 
 }
 
