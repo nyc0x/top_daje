@@ -1,16 +1,22 @@
 CC = gcc
+
 OPTS = --std=gnu99 -Wall
-FLAGS_UI = -lmenu -lncurses
-ARGS_MAIN = src/parser/parser.c src/data_structures/proc_list_item.c src/util.c src/data_structures/linked_list.c src/test.c
+
+FLAGS_UI = -lncurses
+
+ARGS_TEST = src/parser/parser.c src/data_structures/proc_list_item.c src/util.c src/data_structures/linked_list.c src/test.c
+
 ARGS_UI = src/parser/parser.c src/ui/ui.c src/data_structures/linked_list.c src/util.c src/data_structures/proc_list_item.c
-BIN_MAIN = bin/finalTest
+
+BIN_TEST = bin/finalTest
+
 BIN_UI = bin/ui
 
-main: $(ARGS_MAIN)
-	$(CC) -o $(BIN_MAIN) $(ARGS_MAIN) $(OPTS)
+./bin/ui: $(ARGS_UI)
+	$(CC) -o $@ $(ARGS_UI) $(FLAGS_UI)
 
-ui: $(ARGS_UI)
-	$(CC) -o $(BIN_UI) $(ARGS_UI) $(FLAGS_UI)
+./bin/test test: $(ARGS_TEST)
+	$(CC) -o $@ $< $(OPTS)
 
 clean:
-	rm -rf $(BIN_MAIN) $(BIN_UI) && clear
+	rm -rf ./bin/ui
