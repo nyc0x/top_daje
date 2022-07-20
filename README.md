@@ -1,5 +1,6 @@
 # Pseudo 'top' implementation for Linux
 
+<<<<<<< HEAD
 ### Nicolò Della Porta & Mattia Zingaretti
 
 [Link to our repository](https://github.com/NycoDP/top_daje)
@@ -38,3 +39,5 @@ In particular there are two rules:
     $ make clean  #to remove the executable created inside
 ```
 
+=======
+>>>>>>> 90420aed9785b137ee7bf46a2635c20ea891959c

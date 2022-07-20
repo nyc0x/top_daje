@@ -2,11 +2,16 @@
 
 #define MAX_ITEM_SIZE 256
 #define MAX_ELEM_SIZE 32
+#define MAX_ROW_SIZE 100
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define CTRL_D 	4
 
 
+void printError(char* msg){
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
 
 /*
     descr: 
@@ -105,27 +110,31 @@ void initUiData(UiData* u){
         u->page_number = 1;
         u->choices = NULL;      //NEED TO BE SET
 
-    }
-}
-
-void getData(UiData* ui){
-    if(ui){
         ListHead head;    
         List_init(&head);
         getAllProcData(&head);
 
-        ListItem* it = head.first;
+        u->head = head;
+    }
+}
+
+
+
+void getData(UiData* ui){
+    if(ui){
+
+       ListItem* it = ui->head.first;
         
         long long unsigned int i = 0;
-        char** choices = (char**) malloc(sizeof(char*)*head.size);
+        char** choices = (char**) malloc(sizeof(char*)*ui->head.size);
         
         ui->choices = choices;
         
-        while(it && i < head.size ){
+        while(it && i < ui->head.size ){
             ProcListItem* elem = (ProcListItem*) it;
             ProcData* pd = elem->data;
 
-            choices[i] = (char*) malloc(sizeof(char)*100); 
+            choices[i] = (char*) malloc(sizeof(char)*MAX_ROW_SIZE); 
             
             procDataToString(choices[i], pd);    
 
@@ -133,27 +142,12 @@ void getData(UiData* ui){
             it=it->next;
         }
 
-        ui->n_choices = head.size;
+        ui->n_choices = ui->head.size;
         ui->num_pages = ui->n_choices/(ui->rows_per_page)+1;
     }
 }
 
-//TODO: complete here
-void keyDownHandler(UiData* ui, int written){
-    
-    if(ui){
-         if((ui->page_number)-1 == (ui->num_pages)-1){
-                    if(ui->highlight < written)
-                        ui->highlight++;
-                }else {
-                    if(ui->highlight == ui->rows_per_page){
-                        ui->highlight = 1;
-                        ui->page_number++;
-                    }
-                   ui->highlight++;
-                }   
-    }
-}
+
 
 int main(){
 
@@ -242,9 +236,13 @@ int main(){
         wrefresh(main);
     }	
 
+
+
     endwin();
+
     return 0;
 }
+
 
 void signalHandler(WINDOW* main, UiData* ui,int signal) {
     

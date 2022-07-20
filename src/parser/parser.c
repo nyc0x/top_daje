@@ -100,7 +100,7 @@ void getAllProcData(ListHead* head){
         exit(EXIT_FAILURE);
     }
     
-    struct dirent* dir_data = readdir(dir); //Do not free this ptr (see man readdir)!
+    struct dirent* dir_data = readdir(dir); //DO NOT FREE THIS POINTER (see man readdir)!
     int i=0;
     while (dir_data) {
         if (dir_data->d_type == DT_DIR && dir_data->d_name[0] != '.' && atoi(dir_data->d_name) != 0){ // IF IS A PID DIRECTORY

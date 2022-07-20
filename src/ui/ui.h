@@ -19,6 +19,7 @@ typedef struct UiData{
     int page_number;
     long long unsigned int n_choices;
     char** choices;
+    ListHead head;
 }UiData;
 
 
