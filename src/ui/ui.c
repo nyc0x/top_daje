@@ -68,7 +68,21 @@ void procDataToString(char* buf ,ProcData* data){
 void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages, long long unsigned int n_choices);
 
 void printHeader();
+
 void printMenu(WINDOW* win, int rows_per_page, int margin_top);
+
+void signalHandler(WINDOW* main,
+                   long long unsigned idx, 
+                   char* pid, 
+                   long long unsigned pid_num, 
+                   int ret_val, 
+                   long long unsigned highlight,
+                   int page_number,
+                   int rows_per_page,
+                   int margin_top,
+                   long long unsigned n_choices,
+                   char** choices,
+                   int signal);
 
 
 
@@ -192,51 +206,68 @@ int main(){
             case KEY_PPAGE:
                 break;
             case KEY_F(5): //Kill
-
-                idx = highlight-1+(page_number-1)*rows_per_page;
-                //DEBUG: mvwprintw(main,rows_per_page+margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, n_choices);
-                    
-                if(idx < n_choices){
-                    pid = strtok(choices[idx], "\t");
-                    
-                    if(pid){
-                        //DEBUG:mvwprintw(main,rows_per_page+margin_top+4,2,"pid before atoi: %llu\n",pid_num);
-                        pid_num = atoi(pid);
-                        if(pid_num ){
-                            ret_val = kill((pid_t)pid_num, 9);
-                            if(ret_val < 0 ){
-                                mvwprintw(main,rows_per_page+margin_top+4,2,"Killed failed for pid : %llu\n",pid_num);    
-                            }else{
-                                mvwprintw(main,rows_per_page+margin_top+4,2,"Kill effettuata per process: %llu\n",pid_num);
-                            }
-                        }else{
-                            mvwprintw(main,rows_per_page+margin_top+4,2,"Kill non effettuata: \n");    
-                        }
-                        
-                    }
-                }
+                signalHandler(main, idx, pid, pid_num, ret_val, highlight, page_number, rows_per_page, margin_top, n_choices, choices, SIGKILL);
                 break;
-            case KEY_F(6)://Pause
-                
+            case KEY_F(6)://Terminate 
+                signalHandler(main, idx, pid, pid_num, ret_val, highlight, page_number, rows_per_page, margin_top, n_choices, choices, SIGTERM);
                 break;
-            case KEY_F(7): //Suspend
-                
+            case KEY_F(7): //Suspend  kill((pid_t)pid, 19) may be done with SIGTSTP too but it could be ignored
+                signalHandler(main, idx, pid, pid_num, ret_val, highlight, page_number, rows_per_page, margin_top, n_choices, choices, SIGSTOP);
                 break;
-            case KEY_F(8): //Resume
-               
+            case KEY_F(8): //Resume  kill((pid_t)pid, 18) [SIGCONT]
+                signalHandler(main, idx, pid, pid_num, ret_val, highlight, page_number, rows_per_page, margin_top, n_choices, choices, SIGCONT);
                 break;
             default:
                 break;
         }
        
-        mvwprintw(main,rows_per_page+margin_top+1,2,"page_number : %d , num_pages : %d rows_per_page: %llu  n_choices : %d\n",page_number, num_pages,rows_per_page, n_choices); //DEBUG
-        printPage(main ,choices,highlight,rows_per_page , page_number, margin_top, margin_bottom, num_pages, n_choices);
+        printPage(main, choices,highlight, rows_per_page, page_number, margin_top, margin_bottom, num_pages, n_choices);
+        //mvwprintw(main,rows_per_page+margin_top+3,2,"page_number : %d , rows_per_page : %d highlight : %d\n",page_number, rows_per_page, highlight); //DEBUG
                 
         wrefresh(main);
     }	
 
     endwin();
     return 0;
+}
+
+void signalHandler(WINDOW* main,
+                   long long unsigned idx, 
+                   char* pid, 
+                   long long unsigned pid_num, 
+                   int ret_val, 
+                   long long unsigned highlight,
+                   int page_number,
+                   int rows_per_page,
+                   int margin_top,
+                   long long unsigned n_choices,
+                   char** choices,
+                   int signal) {
+    
+                   idx = highlight-1+(page_number-1)*rows_per_page;
+                   mvwprintw(main,rows_per_page+margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, n_choices);
+                       
+                   if(idx < n_choices){
+                       pid = strtok(choices[idx], "\t");
+                       
+                       if(pid){
+                           //mvwprintw(main,rows_per_page+margin_top+4,2,"pid before atoi: %llu\n",pid_num);
+                           pid_num = atoi(pid);
+                           if(pid_num ){
+                               ret_val = kill((pid_t)pid_num, signal);
+                               if(ret_val < 0){
+                                   mvwprintw(main,rows_per_page+margin_top+4,2,"%s failed for pid: %llu\n", sys_siglist[signal], pid_num);    
+                               }
+                               else{
+                                   mvwprintw(main,rows_per_page+margin_top+4,2,"%s done for pid: %llu\n", sys_siglist[signal], pid_num);
+                               }
+                           }
+                           else{
+                               mvwprintw(main,rows_per_page+margin_top+4,2,"%s action didn't work for pid: %llu\n", sys_siglist[signal], pid_num);    
+                           }
+                           
+                       }
+                   }
 }
 
 void printHeader(WINDOW* win){
