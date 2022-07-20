@@ -23,4 +23,12 @@ typedef struct UiData{
 }UiData;
 
 
+int printPage(WINDOW* win ,UiData* ui);
+
+void printHeader();
+
+void printMenu(WINDOW* win, UiData* ui);
+
+void signalHandler(WINDOW* main, UiData* ui,int signal);
+
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);

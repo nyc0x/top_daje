@@ -70,16 +70,6 @@ void procDataToString(char* buf ,ProcData* data){
     return ;
 }
 
-
-
-int printPage(WINDOW* win ,UiData* ui);
-
-void printHeader();
-
-void printMenu(WINDOW* win, UiData* ui);
-
-void signalHandler(WINDOW* main, UiData* ui,int signal);
-
 void initUI(){
     
     initscr();
@@ -263,14 +253,14 @@ void signalHandler(WINDOW* main, UiData* ui,int signal) {
             if(pid_num ){
                 int ret_val = kill((pid_t)pid_num, signal);
                 if(ret_val < 0){
-                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s pid: %llu failed\n", sys_siglist[signal], pid_num);    
+                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"pid: %llu not %s\n", strsignal(signal), pid_num);    
                 }
                 else{
-                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s pid: %llu \n", sys_siglist[signal], pid_num);
+                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s pid: %llu \n", strsignal(signal), pid_num);
                 }
             }
             else{
-                mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s action didn't work for pid: %llu\n", sys_siglist[signal], pid_num);    
+                mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s action didn't work for pid: %llu\n", strsignal(signal), pid_num);    
             }
         }
     }

@@ -1,6 +1,7 @@
 //Ncurses man page online
 https://invisible-island.net/ncurses/man/
 
+https://pm.bsc.es/gitlab/nanox/nanox/-/issues/1251
 
 https://stackoverflow.com/questions/21091191/implementing-a-keypress-event-in-c
 

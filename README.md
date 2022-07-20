@@ -1,6 +1,5 @@
 # Pseudo 'top' implementation for Linux
 
-<<<<<<< HEAD
 ### Nicolò Della Porta & Mattia Zingaretti
 
 [Link to our repository](https://github.com/NycoDP/top_daje)
@@ -11,7 +10,7 @@ In this repository you will find an implementation of the pseudo "top" Linux com
 
 In the main folder there are two directories: **`src`** and **`docs`**.
 In **`src`** there are all the files containing the C implementation and their header files.
-In **`docs`** there are some info we have needed to get in order to implement things righteously and there is a .txt file `(credits.txt)` that contains the most significant links we used to understand how some things worked: in particular for the `ncurses.h` lib, which really simplifies things to create a TUI.
+In **`docs`** there are some info we have needed to get in order to implement things righteously and there is a .txt file `(credits.txt)` that contains the most significant links we used to understand how some things worked: in particular for the `ncurses.h` lib, which really simplifies things to create a TUI using C language.
 In addition to this, in this folder there are also some data structures we used to store processes data into (doubly linked list implementation taken from the SO repository :) ).
 
 # How it works
@@ -27,17 +26,27 @@ By scrolling, you can choose a process and decide whether to:
 
 # How to run
 
-To run our project we implemented a simple Makefile that makes thing easier for everyone who desires to make it run.
-In particular there are two rules:
+To properly run our project it is needed to run the ``install.sh``script that installs a library and creates a ``.bin`` folder used to collect binaries.
+We implemented a simple Makefile that makes thing easier for everyone who desires to make it run.
+
+In particular there are three rules:
+
+- to compile the program:
 
 ```bash
-    $ make        #to compile the program
-```  
-*then you will just need to launch the executable created inside `./bin` directory [only hidden for design reasons]*
-
-```bash
-    $ make clean  #to remove the executable created inside
+    $ make    
 ```
 
-=======
->>>>>>> 90420aed9785b137ee7bf46a2635c20ea891959c
+    *In the two first cases you will also need to launch the executable created inside `.bin` directory;*
+
+- to print all infos in stdout (*useful for debug*):
+
+```bash
+    $ make test   
+```
+
+- to remove binaries:
+
+```bash
+    $ make clean  
+```
