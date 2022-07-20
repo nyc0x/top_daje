@@ -65,7 +65,7 @@ void procDataToString(char* buf ,ProcData* data){
 
 
 
-void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages, long long unsigned int n_choices);
+int printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages, long long unsigned int n_choices);
 
 void printHeader();
 
@@ -149,7 +149,7 @@ int main(){
     printHeader(main);
     printMenu(main, rows_per_page, margin_top);
     //-> page number starts from 1 to -> num_pages (index = i+rows_per_page*pageNumber)
-    printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages, n_choices);
+    int written = printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages, n_choices);
     wrefresh(main);
     
     long long unsigned idx;
@@ -158,6 +158,7 @@ int main(){
     int ret_val;
 
     box(main ,0 ,0);
+
 	while((c = wgetch(main)) != KEY_F(1)){
        
         switch(c){
@@ -165,7 +166,7 @@ int main(){
                 //pages indexes range [0, ... , num_pages-2,num_pages-1]
                 
                 if(page_number-1 == num_pages-1){
-                    if(highlight < (num_pages*rows_per_page-n_choices-4))
+                    if(highlight < written)
                         highlight++;
                 }else {
                     if(highlight == rows_per_page){
@@ -174,25 +175,7 @@ int main(){
                     }
                     highlight++;
                 }   
-                /*
-                if(highlight == rows_per_page && page_number != num_pages-1){
-                    if (page_number < num_pages-1){     
-                        page_number++;
-                    }
-                    highlight = 1; 
-                }else{
-                    if(highlight < rows_per_page){
-                        if(page_number != num_pages){
-                            ++highlight;
-                        }else{
-                            if( highlight != (num_pages*rows_per_page)%n_choices ){
-                                highlight++;
-                            }
-                        }
-                    }
-                } 
-                */
-                break;
+           break;
             case KEY_UP:
                 if(highlight == 1 && page_number == 0)
                     highlight = 1;
@@ -225,9 +208,11 @@ int main(){
             default:
                 break;
         }
-        mvwprintw(main,rows_per_page+margin_top+1,2,"page_number : %d , num_pages : %d rows_per_page: %llu  n_choices : %d\n",page_number, num_pages,rows_per_page, n_choices); //DEBUG
-        printPage(main, choices,highlight, rows_per_page, page_number, margin_top, margin_bottom, num_pages, n_choices);
+        //DEBUG mvwprintw(main,rows_per_page+margin_top+1,2,"page_number : %d , num_pages : %d rows_per_page: %llu  n_choices : %d\n",page_number, num_pages,rows_per_page, n_choices); //DEBUG
+        written = printPage(main, choices,highlight, rows_per_page, page_number, margin_top, margin_bottom, num_pages, n_choices);
         //mvwprintw(main,rows_per_page+margin_top+3,2,"page_number : %d , rows_per_page : %d highlight : %d\n",page_number, rows_per_page, highlight); //DEBUG
+        printHeader(main);
+        printMenu(main, rows_per_page, margin_top);
                 
         wrefresh(main);
     }	
@@ -287,7 +272,7 @@ void printHeader(WINDOW* win){
 void printMenu(WINDOW* win, int rows_per_page, int margin_top){
     if(!win) win = stdscr;
 
-    //mvwprintw(win,rows_per_page+margin_top+1,2,"List of current active processes: \n");
+    mvwprintw(win,rows_per_page+margin_top+1,2,"List of current active processes: \n");
     mvwprintw(win,rows_per_page+margin_top+2,2,"[F1] <-> Exit | [F5]<-> Kill | [F6] <--> Pause | [F7] Suspend | [F8] Resume\n");
 
     return;
@@ -299,10 +284,12 @@ void printSysStat(){
 }
 
 //index = j+(page_number)*rows_per_page
-void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages,long long unsigned int n_choices){
+int printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages,long long unsigned int n_choices){
     
     if(!win) win = stdscr; 
     
+    int written = 0;
+
     int j = 0;
     //pages indexes range [0, ... , num_pages-1]
     //Se è fino alla pagina numero 13 ...
@@ -323,6 +310,7 @@ void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , 
             }
             j++;
         }
+        written = rows_per_page;
     }else if(page_number == num_pages){
         int diff = num_pages*rows_per_page-n_choices-1;
         j = 0;
@@ -330,10 +318,18 @@ void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , 
         while(j < diff){
             if(highlight == j+1){
                 wattron(win, A_REVERSE);
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page-1+rows_per_page*(num_pages-2)]);
+                if(j+rows_per_page-1+rows_per_page*(num_pages-2)< n_choices){
+                    mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page-1+rows_per_page*(num_pages-2)]);
+                    written++;
+                }else
+                    mvwprintw(win,j+margin_top,2,"\n");
                 wattroff( win, A_REVERSE);
             }else{
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page-1+rows_per_page*(num_pages-2)]);
+                if(j+rows_per_page-1+rows_per_page*(num_pages-2) < n_choices){
+                    mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page-1+rows_per_page*(num_pages-2)]);
+                    written++;
+                }else
+                    mvwprintw(win,j+margin_top,2,"\n");
             }
             count++;
             j++;
@@ -342,8 +338,8 @@ void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , 
             mvwprintw(win,j+margin_top,2,"\n");
             j++;    
         }
-
+        
     }
     
-    return;
+    return written;
 }
