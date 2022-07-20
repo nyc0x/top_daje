@@ -119,7 +119,6 @@ void getData(UiData* ui){
         long long unsigned int i = 0;
         char** choices = (char**) malloc(sizeof(char*)*head.size);
         
-        //TODO: create update/setter function for UiData.
         ui->choices = choices;
         
         while(it && i < head.size ){
@@ -236,7 +235,7 @@ int main(){
                 break;
         }
         written = printPage(main, ui);
-        mvwprintw(main,ui->rows_per_page+ui->margin_top+1,2,"[in Main()] written : %d , highlight : %d\n", written , ui->highlight);
+        //mvwprintw(main,ui->rows_per_page+ui->margin_top+1,2,"[in Main()] written : %d , highlight : %d\n", written , ui->highlight);
         printHeader(main);
         printMenu(main,ui);
                 
@@ -301,9 +300,6 @@ void printMenu(WINDOW* win,UiData* ui){
 }
 
 
-
-
-//TODO: resolve indexes of last processes.
 //index = j+(page_number)*rows_per_page
 int printPage(WINDOW* win ,UiData* ui){
     int written = 0;
