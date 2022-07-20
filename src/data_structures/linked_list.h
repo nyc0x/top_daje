@@ -8,7 +8,7 @@ typedef struct ListItem {
 typedef struct ListHead {
   ListItem* first;
   ListItem* last;
-  int size;
+  long long unsigned int size;
 } ListHead;
 
 void List_init(ListHead* head);
