@@ -61,6 +61,54 @@ void testFillStatList(){
 }
 
 
+ProcListItem* middle(ListHead* head){
+
+    ProcListItem* slow = (ProcListItem* ) head->first;
+    ProcListItem* fast = (ProcListItem* ) head->first->next;
+ 
+    while (!slow->list.next && (!fast && !fast->list.next)) {
+        slow = (ProcListItem* ) slow->list.next;
+        fast = (ProcListItem* ) fast->list.next->next;
+    }
+    return slow;
+}
+
+
+ListHead* MergeSortList(ListHead* head){
+
+   if (head->first->next == NULL) {
+        return head;
+    }
+ 
+    ProcListItem* mid = (ProcListItem*)malloc(sizeof(ProcListItem));
+    ListHead* head2 = (ListHead*)malloc(sizeof(ListHead));
+    
+    mid = middle(head);
+    head2 = mid->next;
+    mid->next = NULL;
+    // recursive call to sort() hence diving our problem,
+    // and then merging the solution
+    Node* finalhead = merge(sort(head), sort(head2));
+    return finalhead;
+}
+
+
+void testListSorting(){
+    ListHead head;    
+    List_init(&head);
+    getAllProcData(&head);
+
+    ListHead * sorted ;
+    sorted = MergeSortList(&head);
+
+    procListItem_print(sorted);
+
+    
+
+    return;
+}
+
+
 /*
     CMD: make test
 */
@@ -70,7 +118,9 @@ int main(int argc, char const *argv[]){
 
     //testSysStat();
     //testCountDir();
-    testFillStatList();
+    //testFillStatList();
+
+    testListSorting();
 
     printf("End testing !\n");
     

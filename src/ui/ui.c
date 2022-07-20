@@ -136,7 +136,6 @@ void getData(UiData* ui){
 
         ui->n_choices = head.size;
         ui->num_pages = ui->n_choices/(ui->rows_per_page)+1;
-
     }
 }
 
@@ -208,6 +207,7 @@ int main(){
                     }
                 }   
                 break;
+
             case KEY_UP:
                 if(ui->highlight == 1 && ui->page_number == 1)
                     ui->highlight = 1;
@@ -219,12 +219,8 @@ int main(){
                         ui->highlight--;
                 }
                 break;
-                //TODO: add listener to Npage e PPage
-            case KEY_NPAGE:
-                break;
-            case KEY_PPAGE:
-                break;
             case KEY_F(5): //Kill
+                
                 signalHandler(main,ui, SIGKILL);
                 break;
             case KEY_F(6)://Terminate
@@ -239,9 +235,8 @@ int main(){
             default:
                 break;
         }
-        mvwprintw(main,ui->rows_per_page+ui->margin_top+3,2,"page_number : %d , num_pages : %d rows_per_page: %llu  n_choices : %d\n",ui->page_number, ui->num_pages,ui->rows_per_page, ui->n_choices); //DEBUG
         written = printPage(main, ui);
-        //mvwprintw(main,rows_per_page+margin_top+3,2,"page_number : %d , rows_per_page : %d highlight : %d\n",page_number, rows_per_page, highlight); //DEBUG
+        mvwprintw(main,ui->rows_per_page+ui->margin_top+1,2,"[in Main()] written : %d , highlight : %d\n", written , ui->highlight);
         printHeader(main);
         printMenu(main,ui);
                 
@@ -254,30 +249,39 @@ int main(){
 
 void signalHandler(WINDOW* main, UiData* ui,int signal) {
     
-    long long unsigned idx = ui->highlight-1+(ui->page_number-1)*ui->rows_per_page;
-    mvwprintw(main,ui->rows_per_page+ui->margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, ui->n_choices);
+    long long unsigned idx; 
+
+    if(ui->page_number< ui->num_pages)
+        idx = ui->highlight-1+ui->rows_per_page*(ui->page_number-1);
+    else
+        idx = ui->highlight+(ui->rows_per_page-1)*(ui->page_number-1);
+    //mvwprintw(main,ui->rows_per_page+ui->margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, ui->n_choices);
         
     if(idx < ui->n_choices){
         char* pid = strtok(ui->choices[idx], "\t");
         
         if(pid){
-            //mvwprintw(main,rows_per_page+margin_top+4,2,"pid before atoi: %llu\n",pid_num);
             long long unsigned pid_num = atoi(pid);
+            //mvwprintw(main,ui->rows_per_page+ui->margin_top+1,2,"pid_num to signal: %llu pid_from_choices %s\n",pid_num, pid );
             if(pid_num ){
                 int ret_val = kill((pid_t)pid_num, signal);
                 if(ret_val < 0){
-                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s failed for pid: %llu\n", sys_siglist[signal], pid_num);    
+                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s pid: %llu failed\n", sys_siglist[signal], pid_num);    
                 }
                 else{
-                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s done for pid: %llu\n", sys_siglist[signal], pid_num);
+                    mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s pid: %llu \n", sys_siglist[signal], pid_num);
                 }
             }
             else{
                 mvwprintw(main,ui->rows_per_page+ui->margin_top+4,2,"%s action didn't work for pid: %llu\n", sys_siglist[signal], pid_num);    
             }
-            
         }
     }
+    /*
+    if(signal == SIGKILL ){
+        getData(ui);
+    }*/
+    
 }
 
 void printHeader(WINDOW* win){
@@ -291,16 +295,15 @@ void printMenu(WINDOW* win,UiData* ui){
     if(ui){
         if(!win) win = stdscr;
         mvwprintw(win,ui->rows_per_page+ui->margin_top+1,2,"List of current active processes: \n");
-        //mvwprintw(win,ui->rows_per_page+ui->margin_top+2,2,"[F1] <-> Exit | [F5]<-> Kill | [F6] <--> Pause | [F7] Suspend | [F8] Resume\n");
+        mvwprintw(win,ui->rows_per_page+ui->margin_top+2,2,"[F1] Exit | [F5] Kill | [F6] Terminate | [F7] Suspend | [F8] Resume\n");
     }
     return;
 }
 
-//TODO: per dopo.
-void printSysStat(){
-    return;
-}
 
+
+
+//TODO: resolve indexes of last processes.
 //index = j+(page_number)*rows_per_page
 int printPage(WINDOW* win ,UiData* ui){
     int written = 0;
@@ -329,36 +332,33 @@ int printPage(WINDOW* win ,UiData* ui){
                 j++;
             }
             written = ui->rows_per_page;
-
+            return written;
         }else if(ui->page_number == ui->num_pages){
+            
             int diff = ui->num_pages*ui->rows_per_page-ui->n_choices;
             j = 0;
             while(j < diff){
                 long long unsigned int indice= j+1+(ui->rows_per_page-1)*(ui->page_number-1);
-                mvwprintw(win,ui->rows_per_page+ui->margin_top+2,2,"indice :%lld diff: %d bozza %d \n",indice , diff , ui->rows_per_page-diff);
-
+                //mvwprintw(win,ui->rows_per_page+ui->margin_top+2,2,"IN PRINTING LAST PAGE indice : %llu diff :%d highlight %llu\n",indice, diff, ui->highlight);
                 if(ui->highlight == j+1){
                     wattron(win, A_REVERSE);
                     if(indice < ui->n_choices && indice >= 0)
                         mvwprintw(win,j+ui->margin_top,2,"%s\n", ui->choices[indice]);
-                    written++;
                     wattroff( win, A_REVERSE);
                 }else{
                     if(indice < ui->n_choices && indice >= 0)
                         mvwprintw(win,j+ui->margin_top,2,"%s\n", ui->choices[indice]);
-                    written++;
                 }
                 j++;
             }
+
+            written = diff;
             while (j < ui->rows_per_page){
                 mvwprintw(win,j+ui->margin_top,2,"\n");
                 j++;    
             }
-            
+            return written;
         }
-        
-            
-    }
 
-    return written;
+    }
 }

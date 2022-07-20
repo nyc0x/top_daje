@@ -6,7 +6,7 @@
 #include "../parser/parser.h"
 #include <sys/types.h>
 #include <signal.h>
-
+#include "errno.h"
 
 typedef struct UiData{
     int height;
