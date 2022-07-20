@@ -162,15 +162,19 @@ int main(){
        
         switch(c){
             case KEY_DOWN:
-                //n_choices % (num_pages-1)*row_per_page
                 //pages indexes range [0, ... , num_pages-2,num_pages-1]
                 
-                if(page_number == num_pages-1){
-
-                }else{
-                    
-                }
-
+                if(page_number-1 == num_pages-1){
+                    if(highlight < (num_pages*rows_per_page-n_choices-4))
+                        highlight++;
+                }else {
+                    if(highlight == rows_per_page){
+                        highlight = 1;
+                        page_number++;
+                    }
+                    highlight++;
+                }   
+                /*
                 if(highlight == rows_per_page && page_number != num_pages-1){
                     if (page_number < num_pages-1){     
                         page_number++;
@@ -187,6 +191,7 @@ int main(){
                         }
                     }
                 } 
+                */
                 break;
             case KEY_UP:
                 if(highlight == 1 && page_number == 0)
@@ -220,7 +225,7 @@ int main(){
             default:
                 break;
         }
-       
+        mvwprintw(main,rows_per_page+margin_top+1,2,"page_number : %d , num_pages : %d rows_per_page: %llu  n_choices : %d\n",page_number, num_pages,rows_per_page, n_choices); //DEBUG
         printPage(main, choices,highlight, rows_per_page, page_number, margin_top, margin_bottom, num_pages, n_choices);
         //mvwprintw(main,rows_per_page+margin_top+3,2,"page_number : %d , rows_per_page : %d highlight : %d\n",page_number, rows_per_page, highlight); //DEBUG
                 
@@ -300,8 +305,8 @@ void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , 
     
     int j = 0;
     //pages indexes range [0, ... , num_pages-1]
-
-    if(page_number < num_pages-1){
+    //Se è fino alla pagina numero 13 ...
+    if(page_number-1 < num_pages-1){
         while(j < rows_per_page){
             if(highlight == j+1){
                 wattron(win, A_REVERSE);
@@ -318,16 +323,19 @@ void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , 
             }
             j++;
         }
-    }else if(page_number == num_pages-1){
-        int mod = (num_pages*rows_per_page)%n_choices;
-        while(j < mod){
+    }else if(page_number == num_pages){
+        int diff = num_pages*rows_per_page-n_choices-1;
+        j = 0;
+        int count = 1;
+        while(j < diff){
             if(highlight == j+1){
                 wattron(win, A_REVERSE);
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page-1+rows_per_page*(num_pages-2)]);
                 wattroff( win, A_REVERSE);
             }else{
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page-1+rows_per_page*(num_pages-2)]);
             }
+            count++;
             j++;
         }
         while (j < rows_per_page){
