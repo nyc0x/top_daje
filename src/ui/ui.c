@@ -65,7 +65,7 @@ void procDataToString(char* buf ,ProcData* data){
 
 
 
-void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages);
+void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages, long long unsigned int n_choices);
 
 void printHeader();
 void printMenu(WINDOW* win, int rows_per_page, int margin_top);
@@ -125,7 +125,8 @@ int main(){
     int margin_bottom = 5;
     int rows_per_page = height-margin_bottom-margin_top;
 
-    int num_pages = n_choices/rows_per_page;
+    //Pages are 0-indexed
+    int num_pages = n_choices/rows_per_page+1; //TODO: CHECK HERE
     long long unsigned highlight = 1; //START WITH ONE.
     int page_number = 0;
     
@@ -134,7 +135,7 @@ int main(){
     printHeader(main);
     printMenu(main, rows_per_page, margin_top);
     //-> page number starts from 1 to -> num_pages (index = i+rows_per_page*pageNumber)
-    printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages);
+    printPage(main ,choices,highlight,rows_per_page, page_number,margin_top, margin_bottom ,num_pages, n_choices);
     wrefresh(main);
     
     long long unsigned idx;
@@ -147,14 +148,30 @@ int main(){
        
         switch(c){
             case KEY_DOWN:
-                if(highlight == rows_per_page){
-                    if (page_number < num_pages){
-                        highlight = 1;      
+                //n_choices % (num_pages-1)*row_per_page
+                //pages indexes range [0, ... , num_pages-2,num_pages-1]
+                
+                if(page_number == num_pages-1){
+
+                }else{
+                    
+                }
+
+                if(highlight == rows_per_page && page_number != num_pages-1){
+                    if (page_number < num_pages-1){     
                         page_number++;
                     }
+                    highlight = 1; 
                 }else{
-                    if(highlight < rows_per_page)
-                        ++highlight;
+                    if(highlight < rows_per_page){
+                        if(page_number != num_pages){
+                            ++highlight;
+                        }else{
+                            if( highlight != (num_pages*rows_per_page)%n_choices ){
+                                highlight++;
+                            }
+                        }
+                    }
                 } 
                 break;
             case KEY_UP:
@@ -177,13 +194,13 @@ int main(){
             case KEY_F(5): //Kill
 
                 idx = highlight-1+(page_number-1)*rows_per_page;
-                mvwprintw(main,rows_per_page+margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, n_choices);
+                //DEBUG: mvwprintw(main,rows_per_page+margin_top+3,2,"idx: %llu n_choices: %llu\n",idx, n_choices);
                     
                 if(idx < n_choices){
                     pid = strtok(choices[idx], "\t");
                     
                     if(pid){
-                        //mvwprintw(main,rows_per_page+margin_top+4,2,"pid before atoi: %llu\n",pid_num);
+                        //DEBUG:mvwprintw(main,rows_per_page+margin_top+4,2,"pid before atoi: %llu\n",pid_num);
                         pid_num = atoi(pid);
                         if(pid_num ){
                             ret_val = kill((pid_t)pid_num, 9);
@@ -212,8 +229,8 @@ int main(){
                 break;
         }
        
-        printPage(main ,choices,highlight,rows_per_page , page_number, margin_top, margin_bottom, num_pages);
-        //mvwprintw(main,rows_per_page+margin_top+3,2,"page_number : %d , rows_per_page : %d highlight : %d\n",page_number, rows_per_page, highlight); //DEBUG
+        mvwprintw(main,rows_per_page+margin_top+1,2,"page_number : %d , num_pages : %d rows_per_page: %llu  n_choices : %d\n",page_number, num_pages,rows_per_page, n_choices); //DEBUG
+        printPage(main ,choices,highlight,rows_per_page , page_number, margin_top, margin_bottom, num_pages, n_choices);
                 
         wrefresh(main);
     }	
@@ -234,7 +251,7 @@ void printHeader(WINDOW* win){
 void printMenu(WINDOW* win, int rows_per_page, int margin_top){
     if(!win) win = stdscr;
 
-    mvwprintw(win,rows_per_page+margin_top+1,2,"List of current active processes: \n");
+    //mvwprintw(win,rows_per_page+margin_top+1,2,"List of current active processes: \n");
     mvwprintw(win,rows_per_page+margin_top+2,2,"[F1] <-> Exit | [F5]<-> Kill | [F6] <--> Pause | [F7] Suspend | [F8] Resume\n");
 
     return;
@@ -245,30 +262,49 @@ void printSysStat(){
     return;
 }
 
-//index = i+rows_per_page*pageNumber
-void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages){
+//index = j+(page_number)*rows_per_page
+void printPage(WINDOW* win , char** choices, int highlight, int rows_per_page , int page_number, int margin_top, int margin_bottom, int num_pages,long long unsigned int n_choices){
     
     if(!win) win = stdscr; 
     
     int j = 0;
-    while(j < rows_per_page){
-        if(highlight == j+1){
-            wattron(win, A_REVERSE);
-            if(page_number == num_pages){
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
-            }else{
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number)]);
-            }
-            wattroff( win, A_REVERSE);
-        }else{
-            if(page_number == num_pages){
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
-            }else{
-                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number)]);
-            }
-        }
-        j++;
-    }
+    //pages indexes range [0, ... , num_pages-1]
 
+    if(page_number < num_pages-1){
+        while(j < rows_per_page){
+            if(highlight == j+1){
+                wattron(win, A_REVERSE);
+                if(page_number == 0)
+                    mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number)]);
+                else
+                    mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+                wattroff( win, A_REVERSE);
+            }else{
+                if(page_number == 0)
+                    mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number)]);
+                else
+                    mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+            }
+            j++;
+        }
+    }else if(page_number == num_pages-1){
+        int mod = (num_pages*rows_per_page)%n_choices;
+        while(j < mod){
+            if(highlight == j+1){
+                wattron(win, A_REVERSE);
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+                wattroff( win, A_REVERSE);
+            }else{
+                mvwprintw(win,j+margin_top,2,"%s\n", choices[j+rows_per_page*(page_number-1)]);
+            }
+            j++;
+        }
+        while (j < rows_per_page){
+            mvwprintw(win,j+margin_top,2,"\n");
+            j++;    
+        }
+
+    }
+    
     return;
 }
