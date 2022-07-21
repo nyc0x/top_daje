@@ -11,7 +11,7 @@
 /*
     author: [MZ] [NDP] 
     In this file we worked together to create these functions and to make them working properly,
-    in order to fix the problems as early as possible. 
+    in order to fix the problems asap. 
 */
 void printError(char* msg){
     perror(msg);
@@ -76,6 +76,7 @@ void procDataToString(char* buf ,ProcData* data){
         offset += ret;
 
     buf[offset] = '\0'; 
+    free(elem);
     return ;
 }
 
@@ -146,7 +147,15 @@ void getData(UiData* ui){
     }
 }
 
+void freeUi(UiData* ui) {
+    for (long long int i = 0; i < ui->n_choices; i++) {
+        free(ui->choices[i]);
+    }
 
+    for (long long int i=0; i < ui->head.size; i++) {
+        free(List_detach(&(ui->head), (ListItem*)ui->head.first));
+    }
+}
 
 int main(){
 
@@ -238,7 +247,7 @@ int main(){
 
 
     endwin();
-
+    freeUi(ui);
     return 0;
 }
 

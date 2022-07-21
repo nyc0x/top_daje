@@ -27,7 +27,7 @@ void testSysStat(){
     for(int i = 0 ; i <  NUM_SYS_STATS; i++)
         printf("%s : %d \n",SYS_STATS_HEADERS[i],(int) sys_stats_values[i]);
     
-
+    free(sys_stats_values);
     //CLEAN-UP
     fclose(fp);
     return;

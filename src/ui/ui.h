@@ -25,6 +25,8 @@ typedef struct UiData{
 
 int printPage(WINDOW* win ,UiData* ui);
 
+void freeUi(UiData* ui);
+
 void printHeader();
 
 void printMenu(WINDOW* win, UiData* ui);
