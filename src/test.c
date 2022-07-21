@@ -61,7 +61,7 @@ void testFillStatList(){
 }
 
 
-ProcListItem* middle(ListHead* head){
+/*ProcListItem* middle(ListHead* head){
 
     ProcListItem* slow = (ProcListItem* ) head->first;
     ProcListItem* fast = (ProcListItem* ) head->first->next;
@@ -90,7 +90,7 @@ ListHead* MergeSortList(ListHead* head){
     // and then merging the solution
     Node* finalhead = merge(sort(head), sort(head2));
     return finalhead;
-}
+}*/
 
 
 void testListSorting(){
@@ -98,11 +98,10 @@ void testListSorting(){
     List_init(&head);
     getAllProcData(&head);
 
-    ListHead * sorted ;
+    /*ListHead * sorted ;
     sorted = MergeSortList(&head);
-
-    procListItem_print(sorted);
-
+    */
+    procListItem_print(&head);
     
 
     return;

@@ -8,6 +8,11 @@
 #define CTRL_D 	4
 
 
+/*
+    author: [MZ] [NDP] 
+    In this file we worked together to create these functions and to make them working properly,
+    in order to fix the problems as early as possible. 
+*/
 void printError(char* msg){
     perror(msg);
     exit(EXIT_FAILURE);
@@ -17,7 +22,6 @@ void printError(char* msg){
     descr: 
     args:   
     retval: 
-    author: [MZ] [NDP] 
 */
 void procDataToString(char* buf ,ProcData* data){
     char* elem = (char*) malloc(sizeof(char*)*MAX_ELEM_SIZE);
@@ -29,8 +33,13 @@ void procDataToString(char* buf ,ProcData* data){
         memset(elem , 0 , ret);  //empty elem buffer
         offset += ret;
     }
-   
-        ret = sprintf(elem, "%lu\t",data->utime); //Check man sprintf
+    ret = sprintf(elem, "%c\t",data->state); //Check man sprintf
+    if(ret >= 0){
+        memcpy(buf + offset, elem, ret); //append to total buffer
+        memset(elem , 0 , ret);  //empty elem buffer
+        offset += ret;
+    }
+    ret = sprintf(elem, "%lu\t",data->utime); //Check man sprintf
     if(ret >= 0){
         memcpy(buf + offset, elem, ret); //append to total buffer
         memset(elem , 0 , ret);  //empty elem buffer
@@ -274,7 +283,7 @@ void signalHandler(WINDOW* main, UiData* ui,int signal) {
 void printHeader(WINDOW* win){
     if(!win) win = stdscr; 
     //TODO: replace 4 with #define "some costants"
-    mvwprintw(win,4,2,"PID:\tUTIME\tSTIME\tN_THREADS\t\t\tSTART_TIME\t\tV_SIZE\tCOMM\n");
+    mvwprintw(win,4,2,"PID:\tSTATE\tUTIME\tSTIME\tN_THREADS\t\t\tSTART_TIME\t\tV_SIZE\tCOMM\n");
     return;
 }
 
