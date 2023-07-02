@@ -37,7 +37,7 @@ In particular there are three rules:
     $ make    
 ```
 
-    *In the two first cases you will also need to launch the executable created inside `.bin` directory;*
+    In the first two cases you will also need to launch the executable created inside `.bin` directory;
 
 - to print all infos in stdout (*useful for debug*):
 
